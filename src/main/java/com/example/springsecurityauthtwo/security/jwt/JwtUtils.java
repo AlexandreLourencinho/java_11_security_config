@@ -1,6 +1,5 @@
 package com.example.springsecurityauthtwo.security.jwt;
 
-
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,11 +11,11 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Function;
 
-@Slf4j
-@Component
 /**
  * Tools used for the JWT management
  */
+@Slf4j
+@Component
 public class JwtUtils {
 
     @Value("${com.example.jwtSecret}")

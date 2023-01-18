@@ -10,7 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * implementation of the load by username overridden method
+ * implementation of the loadUserByUsername overridden method
  */
 @AllArgsConstructor
 @Service

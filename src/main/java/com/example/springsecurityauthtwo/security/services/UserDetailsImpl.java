@@ -12,6 +12,9 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * an implementation of the UserDetails interface
+ */
 @Data
 @AllArgsConstructor
 public class UserDetailsImpl implements UserDetails {
