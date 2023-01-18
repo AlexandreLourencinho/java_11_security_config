@@ -3,17 +3,13 @@ package com.example.springsecurityauthtwo.security;
 import com.example.springsecurityauthtwo.security.jwt.AuthEntryPoint;
 import com.example.springsecurityauthtwo.security.jwt.AuthTokenFilter;
 import com.example.springsecurityauthtwo.security.jwt.JwtUtils;
-import com.example.springsecurityauthtwo.security.services.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
-import org.springframework.security.config.annotation.authentication.configurers.userdetails.DaoAuthenticationConfigurer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -23,8 +19,10 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
-import static org.springframework.boot.autoconfigure.security.servlet.PathRequest.toH2Console;
 
+/**
+ * Security configuration class
+ */
 @Configuration
 @AllArgsConstructor
 @EnableMethodSecurity
@@ -35,7 +33,10 @@ public class SecurityConfig {
     private AuthEntryPoint unhauthorizedHandler;
     private JwtUtils jwtUtils;
 
-
+    /**
+     * Bean providing the auth provider
+     * @return a DaeoAuthenticationProvider object
+     */
     @Bean
     public DaoAuthenticationProvider authProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
@@ -46,27 +47,48 @@ public class SecurityConfig {
         return authProvider;
     }
 
+    /**
+     * Bean returning the authentication manager
+     * @param authConfig AuthenficationConfiguration object
+     * @return the authentication manager
+     * @throws Exception if something went bad
+     */
     @Bean
     public AuthenticationManager authManager(AuthenticationConfiguration authConfig) throws Exception {
         return authConfig.getAuthenticationManager();
     }
 
+    /**
+     * Bean returning the Entry point filter
+     * @return the filter
+     */
     @Bean
     public AuthTokenFilter authTokenFilter() {
         return new AuthTokenFilter(jwtUtils, userDetailsService);
     }
 
+    /**
+     * Bean providing the password encoder
+     * @return a BCryptPasswordEncoder
+     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
+    /**
+     * The filter chain applied to the routes. Default permitted : signup, signin. h2 is present for dev purpose.
+     * Defines the filters, the auth provider that will be used
+     * @param http the HttpSecurity object
+     * @return a SecurityFilterChain
+     * @throws Exception is something went wrong
+     */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unhauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests().antMatchers("/api/auth/**").permitAll()
+                .authorizeRequests()
                 .antMatchers("/user/signup/**", "/user/signin/**").permitAll()
                 .antMatchers("/h2-console/**").permitAll()
                 .anyRequest().authenticated();

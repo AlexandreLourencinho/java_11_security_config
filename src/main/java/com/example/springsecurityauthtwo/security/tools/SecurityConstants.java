@@ -1,8 +1,11 @@
 package com.example.springsecurityauthtwo.security.tools;
 
-public class Constants {
+/**
+ * Constants used in security package
+ */
+public class SecurityConstants {
 
-    private Constants() {
+    private SecurityConstants() {
     }
 
     public static final String ERROR_ROLE = "Error: role not found";
@@ -10,5 +13,10 @@ public class Constants {
     public static final String HEADER_TOKEN = "Authorization";
 
     public static final String TOKEN_START = "Bearer ";
+
+    public static final String TOKEN_START_REFRESH = "Refresh ";
+
+    public static final String REFRESH_TOKEN = "Refresh";
+
 
 }

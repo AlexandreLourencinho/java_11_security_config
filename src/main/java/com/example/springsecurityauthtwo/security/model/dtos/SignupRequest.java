@@ -1,10 +1,16 @@
 package com.example.springsecurityauthtwo.security.model.dtos;
 
 import lombok.Data;
+import lombok.experimental.Accessors;
 
 import java.util.Set;
 
+/**
+ * Contains username, email, passsword and roles (usually empty array)
+ * Eponymous function
+ */
 @Data
+@Accessors(chain = true)
 public class SignupRequest {
 
     private String username;

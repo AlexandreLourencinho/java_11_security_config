@@ -2,38 +2,57 @@ package com.example.springsecurityauthtwo.security.jwt;
 
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import org.springframework.web.util.WebUtils;
 
-import javax.servlet.http.Cookie;
-import javax.servlet.http.HttpServletRequest;
-import java.security.Key;
-import java.util.Base64;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.function.Function;
 
 @Slf4j
 @Component
+/**
+ * Tools used for the JWT management
+ */
 public class JwtUtils {
 
     @Value("${com.example.jwtSecret}")
     private String secret;
-    @Value("${com.example.jwtExpirationMs}")
-    private String expiration;
-    @Value("${com.example.jwtCookieName}")
-    private String cookie;
+    @Value("${com.example.minuteExpiration}")
+    private String minuteExpiration;
+    @Value("${com.example.refreshExpiration}")
+    private String refreshExpiration;
 
-    public String generateTokenFromUsername(String username) {
-        Date date = new Date();
-        Date expDate = new Date(date.getTime() + Integer.parseInt(expiration));
+
+    /**
+     * Method generating access and refresh token
+     * @param username the user's username
+     * @return a Map containing both tokens
+     */
+    public Map<String, String> generateTokenAndRefresh(String username) {
+        String refreshToken = generateJwtRefreshToken(username);
+        String token = generateJwtToken(username);
+        Map<String, String> tokens = new HashMap<>();
+        tokens.put("token", token);
+        tokens.put("refreshToken", refreshToken);
+        return tokens;
+    }
+
+    /**
+     * Creation method for the access token
+     * @param username the user's username
+     * @return a string jwt
+     */
+    public String generateJwtToken(String username) {
+        Map<String, Object> claims = new HashMap<>();
+        Date date = new Date(System.currentTimeMillis());
+        Date expDate = Date.from(LocalDateTime.now().plusHours(Long.parseLong(minuteExpiration)).atZone(ZoneId.systemDefault()).toInstant());
+
         return Jwts.builder()
+                .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(date)
                 .setExpiration(expDate)
@@ -41,47 +60,81 @@ public class JwtUtils {
                 .compact();
     }
 
-
-    public String generateToken(UserDetails user) {
-        Date date = new Date();
-        Date expDate = new Date(date.getTime() + Integer.parseInt(expiration));
+    /**
+     * Creation method for the refresh token
+     * @param username the user's username
+     * @return a string jwt
+     */
+    public String generateJwtRefreshToken(String username) {
+        Date date = new Date(System.currentTimeMillis());
         Map<String, Object> claims = new HashMap<>();
-        return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(user.getUsername())
-                .setIssuedAt(date)
-                .setExpiration(expDate)
-                .signWith(SignatureAlgorithm.HS512, secret)
-                .compact();
+        Date refreshDate = Date.from(LocalDateTime.now().plusHours(Long.parseLong(refreshExpiration)).atZone(ZoneId.systemDefault()).toInstant());
+
+        return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(date)
+                .setExpiration(refreshDate)
+                .signWith(SignatureAlgorithm.HS512, secret).compact();
     }
 
+
+    /**
+     * Get all claims from a JWT Token
+     * @param token the jwt token, access or refresh
+     * @return Claims object
+     */
     private Claims getAllClaimsFromToken(String token) {
-//        Base64.getEncoder().encode(secret.getBytes())
-        return Jwts.parser().setSigningKey(Base64.getEncoder().encode(secret.getBytes())).parseClaimsJwt(token).getBody();
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
+    /**
+     * Get a specific claim from a Claims object
+     * @param token the JWT token
+     * @param claimsResolver a function
+     * @param <T> claim type, expiration date, subject..
+     * @return a claim
+     */
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
 
+    /**
+     * get username from the JWT token claims
+     * @param token jwt token
+     * @return a string username
+     */
     public String getUsernameFromToken(String token) {
         return getClaimFromToken(token, Claims::getSubject);
     }
 
+    /**
+     * get token expiration date
+     * @param token the jwt token
+     * @return a date type
+     */
     public Date getExpirationDateFromToken(String token) {
-        return getClaimFromToken(token,Claims::getExpiration);
+        return getClaimFromToken(token, Claims::getExpiration);
     }
 
+    /**
+     * check if token is expired
+     * @param token the jwt token
+     * @return true or false (or null)
+     */
     private Boolean isTokenExpired(String token) {
         final Date expirationDate = getExpirationDateFromToken(token);
         return expirationDate.before(new Date());
     }
 
+    /**
+     * check if the jwt token is valid
+     * @param token the jwt token
+     * @param user the user associated with
+     * @return true false or null
+     */
     public Boolean validateToken(String token, UserDetails user) {
         final String username = getUsernameFromToken(token);
+        log.error(username);
         return username.equals(user.getUsername()) && !isTokenExpired(token);
     }
-
 
 }

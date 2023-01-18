@@ -3,13 +3,10 @@ package com.example.springsecurityauthtwo.security.jwt;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.ExceptionHandler;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -21,36 +18,70 @@ import java.util.Map;
 public class AuthEntryPoint implements AuthenticationEntryPoint {
 
 
+    /**
+     * manage the entry points errors
+     * @param request that resulted in an <code>AuthenticationException</code>
+     * @param response so that the user agent can begin authentication
+     * @param authException that caused the invocation
+     * @throws IOException if I/O exception error occured
+     */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
         log.error("Unauthorized error: {}", authException.getMessage());
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-
+        final String expired = (String) request.getAttribute("expired");
         final Map<String, Object> body = new HashMap<>();
-        body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-        body.put("error","Unauthorized");
-        body.put("message", authException.getMessage());
-        body.put("path", request.getServletPath());
-
         final ObjectMapper mapper = new ObjectMapper();
+        if (expired != null) {
+            String refreshToken = (String) request.getAttribute("newToken");
+            if (refreshToken != null) {
+                body.put("newToken", refreshToken);
+                body.put("isRefreshTokenVlid", true);
+                // TODO refresh token de 8 heures
+            }
+            body.put("status", HttpServletResponse.SC_FORBIDDEN);
+            body.put("error", "expired");
+            body.put("message", expired);
+            body.put("path", request.getServletPath());
+        } else {
+            body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
+            body.put("error", "Unauthorized");
+            body.put("message", authException.getMessage());
+            body.put("path", request.getServletPath());
+        }
         mapper.writeValue(response.getOutputStream(), body);
+
     }
 
-    @ExceptionHandler(value = {AccessDeniedException.class})
-    public void commence(HttpServletRequest request, HttpServletResponse response,
-                         AccessDeniedException accessDeniedException) throws IOException {
-        // 403
-        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Authorization Failed : " + accessDeniedException.getMessage());
-    }
+//    /**
+//     *
+//     * @param request
+//     * @param response
+//     * @param accessDeniedException
+//     * @throws IOException
+//     */
+//    @ExceptionHandler(value = {AccessDeniedException.class})
+//    public void commence(HttpServletRequest request, HttpServletResponse response,
+//                         AccessDeniedException accessDeniedException) throws IOException {
+//        // 403
+//        response.sendError(HttpServletResponse.SC_FORBIDDEN, "Authorization Failed : " + accessDeniedException.getMessage());
+//    }
 
-    @ExceptionHandler (value = {Exception.class})
-    public void commence(HttpServletRequest request, HttpServletResponse response,
-                         Exception exception) throws IOException {
-        // 500
-        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error : " + exception.getMessage());
-    }
+//    /**
+//     *
+//     * @param request
+//     * @param response
+//     * @param exception
+//     * @throws IOException
+//     */
+//    @ExceptionHandler (value = {Exception.class})
+//    public void commence(HttpServletRequest request, HttpServletResponse response,
+//                         Exception exception) throws IOException {
+//        // 500
+//        response.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error : " + exception.getMessage());
+//    }
 
 
 }
