@@ -1,7 +1,9 @@
 package com.example.springsecurityauthtwo.security.jwt;
 
+import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.AuthenticationEntryPoint;
@@ -31,25 +33,43 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
 
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
         response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        final String expired = (String) request.getAttribute("expired");
+        final String expired = (String) request.getAttribute(SecurityConstants.EXPIRED);
+        final String refreshable = (String) request.getAttribute("refreshExpired");
+        final String newRefreshToken = (String) request.getAttribute("newRefreshToken");
+        log.error("new refresh token : " + newRefreshToken);
+        final String invalidRefreshToken = (String) request.getAttribute("invalidToken");
         final Map<String, Object> body = new HashMap<>();
         final ObjectMapper mapper = new ObjectMapper();
-        if (expired != null) {
+        if (!StringUtils.isEmpty(expired) && StringUtils.isEmpty(refreshable)) {
             String refreshToken = (String) request.getAttribute("newToken");
-            if (refreshToken != null) {
-                body.put("newToken", refreshToken);
-                body.put("isRefreshTokenVlid", true);
-                // TODO refresh token de 8 heures
+            if (StringUtils.isNotEmpty(refreshToken)) {
+                body.put("newToken", SecurityConstants.TOKEN_START + refreshToken);
             }
-            body.put("status", HttpServletResponse.SC_FORBIDDEN);
-            body.put("error", "expired");
-            body.put("message", expired);
-            body.put("path", request.getServletPath());
-        } else {
-            body.put("status", HttpServletResponse.SC_UNAUTHORIZED);
-            body.put("error", "Unauthorized");
-            body.put("message", authException.getMessage());
-            body.put("path", request.getServletPath());
+            if(StringUtils.isNotEmpty(newRefreshToken)) {
+                body.put("newRefreshToken", SecurityConstants.TOKEN_START_REFRESH + newRefreshToken);
+            }
+            body.put(SecurityConstants.STATUS, HttpServletResponse.SC_FORBIDDEN);
+            body.put(SecurityConstants.ERROR, SecurityConstants.EXPIRED);
+            body.put(SecurityConstants.MESSAGE, expired);
+            body.put(SecurityConstants.PATH, request.getServletPath());
+        } else if(!StringUtils.isEmpty(expired) && !StringUtils.isEmpty(refreshable)) {
+            body.put("refreshExpired", "The refresh token has expired. Please reconnect");
+            body.put(SecurityConstants.STATUS, HttpServletResponse.SC_FORBIDDEN);
+            body.put(SecurityConstants.ERROR, SecurityConstants.EXPIRED);
+            body.put(SecurityConstants.MESSAGE, expired);
+        }
+        else {
+            if(StringUtils.isNotEmpty(newRefreshToken)) {
+                body.put("newRefreshToken", SecurityConstants.TOKEN_START_REFRESH + newRefreshToken);
+            }
+            if(StringUtils.isNotEmpty(invalidRefreshToken)) {
+                log.error("else");
+                body.put("invalidToken", "refresh token is invalid");
+            }
+            body.put(SecurityConstants.STATUS, HttpServletResponse.SC_UNAUTHORIZED);
+            body.put(SecurityConstants.ERROR, "Unauthorized");
+            body.put(SecurityConstants.MESSAGE, authException.getMessage());
+            body.put(SecurityConstants.PATH, request.getServletPath());
         }
         mapper.writeValue(response.getOutputStream(), body);
 

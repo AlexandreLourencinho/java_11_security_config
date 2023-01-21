@@ -33,6 +33,9 @@ public class AppUser {
             inverseJoinColumns = @JoinColumn(name = "role_id"))
     @ToString.Exclude
     private Set<AppRole> roles = new HashSet<>();
+    @OneToOne(mappedBy = "user")
+    @PrimaryKeyJoinColumn
+    private TokenUsed tokens;
 
     @Override
     public boolean equals(Object o) {

@@ -4,9 +4,9 @@ import com.example.springsecurityauthtwo.security.jwt.JwtUtils;
 import com.example.springsecurityauthtwo.security.model.dtos.*;
 import com.example.springsecurityauthtwo.security.model.entities.*;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
-import com.example.springsecurityauthtwo.security.repositories.AppRoleRepository;
-import com.example.springsecurityauthtwo.security.repositories.AppUserRepository;
+import com.example.springsecurityauthtwo.security.services.TokenService;
 import com.example.springsecurityauthtwo.security.services.UserDetailsImpl;
+import com.example.springsecurityauthtwo.security.services.UserServices;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -37,8 +37,8 @@ import java.util.stream.Collectors;
 public class AuthController {
 
     private AuthenticationManager manager;
-    private AppUserRepository userRepository;
-    private AppRoleRepository roleRepository;
+    private TokenService tokenService;
+    private UserServices userServices;
     private PasswordEncoder passwordEncoder;
     private JwtUtils jwtUtils;
 
@@ -50,19 +50,35 @@ public class AuthController {
     @PostMapping("/signin")
     public ResponseEntity<UserInfoResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
 
+        // context and auth management
+        log.info("User signin in...");
         Authentication auth = manager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(auth);
         UserDetails userDetails = (UserDetailsImpl) auth.getPrincipal();
+
+        // jwt generation
         Map<String, String> bothToken = jwtUtils.generateTokenAndRefresh(userDetails.getUsername());
         String jwt = bothToken.get("token");
         String refreshToken = bothToken.get("refreshToken");
-        log.info(jwt);
         List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
+
+        // headers management
         HttpHeaders headers = new HttpHeaders();
         headers.add(SecurityConstants.HEADER_TOKEN, SecurityConstants.TOKEN_START + jwt);
         headers.add(SecurityConstants.REFRESH_TOKEN, SecurityConstants.TOKEN_START_REFRESH + refreshToken);
+
+        // reset in database if  present, insert otherwise
+        Boolean doesHeHasJwt = tokenService.isUserHadJwt(userDetails.getUsername());
+        if(Boolean.TRUE.equals(doesHeHasJwt)) {
+            tokenService.razUserJwt(jwt, refreshToken, userDetails.getUsername());
+        } else {
+            tokenService.registerJwtUser(jwt, refreshToken, userDetails.getUsername());
+        }
+
+        // build and send response
         UserInfoResponse infoResponse = new UserInfoResponse(userDetails.getUsername(), roles);
+        log.info("user signed in");
         return new ResponseEntity<>(infoResponse, headers, HttpStatus.OK);
 
     }
@@ -75,12 +91,16 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<MessageResponse> registerUser(@Valid @RequestBody SignupRequest signupRequest) {
 
-        if (Boolean.TRUE.equals(userRepository.existsByUsername(signupRequest.getUsername()))) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error : Username is already taken !"));
+        log.warn("registering a new user...");
+
+        if (Boolean.TRUE.equals(userServices.usernameAlreadyExists(signupRequest.getUsername()))) {
+            log.warn("The username is already taken");
+            return ResponseEntity.badRequest().body(new MessageResponse(SecurityConstants.ERROR_USERNAME_TAKEN));
         }
 
-        if (Boolean.TRUE.equals(userRepository.existsByEmail(signupRequest.getEmail()))) {
-            return ResponseEntity.badRequest().body(new MessageResponse("Error : Email is already use !"));
+        if (Boolean.TRUE.equals(userServices.emailAlreadyExists(signupRequest.getEmail()))) {
+            log.warn("The email is already taken");
+            return ResponseEntity.badRequest().body(new MessageResponse(SecurityConstants.ERROR_MAIL_TAKEN));
         }
 
         AppUser user = new AppUser()
@@ -90,31 +110,15 @@ public class AuthController {
         Set<String> strRoles = signupRequest.getRoles();
         Set<AppRole> roles = new HashSet<>();
         if (strRoles == null) {
-            AppRole userRoles = roleRepository.findByName(ERole.ROLE_USER)
-                    .orElseThrow(() -> new RuntimeException(SecurityConstants.ERROR_ROLE));
+            AppRole userRoles = userServices.findRoleByRolename(ERole.ROLE_USER);
             roles.add(userRoles);
         } else {
-            strRoles.forEach(role -> {
-                switch (role) {
-                    case "admin":
-                        AppRole adminRole = roleRepository.findByName(ERole.ROLE_ADMIN).orElseThrow(() -> new RuntimeException(SecurityConstants.ERROR_ROLE));
-                        roles.add(adminRole);
-                        break;
-                    case "mod":
-                        AppRole modRole = roleRepository.findByName(ERole.ROLE_MODERATOR).orElseThrow(() -> new RuntimeException(SecurityConstants.ERROR_ROLE));
-                        roles.add(modRole);
-                        break;
-                    default:
-                        AppRole userRole = roleRepository.findByName(ERole.ROLE_USER).orElseThrow(() -> new RuntimeException(SecurityConstants.ERROR_ROLE));
-                        roles.add(userRole);
-                        break;
-                }
-            });
+            userServices.manageRoles(strRoles, roles);
         }
 
         user.setRoles(roles);
-        userRepository.save(user);
-
+        userServices.saveNewUser(user);
+        log.info("user registered successfully!");
         return ResponseEntity.ok(new MessageResponse(String.format("User %s registered successfully", user.getUsername())));
     }
 

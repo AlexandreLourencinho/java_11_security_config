@@ -32,6 +32,7 @@ public class JwtUtils {
      * @return a Map containing both tokens
      */
     public Map<String, String> generateTokenAndRefresh(String username) {
+        log.info("generating new Access Token and new Refresh Token");
         String refreshToken = generateJwtRefreshToken(username);
         String token = generateJwtToken(username);
         Map<String, String> tokens = new HashMap<>();
@@ -46,9 +47,10 @@ public class JwtUtils {
      * @return a string jwt
      */
     public String generateJwtToken(String username) {
+        log.info("generating access token...");
         Map<String, Object> claims = new HashMap<>();
         Date date = new Date(System.currentTimeMillis());
-        Date expDate = Date.from(LocalDateTime.now().plusHours(Long.parseLong(minuteExpiration)).atZone(ZoneId.systemDefault()).toInstant());
+        Date expDate = Date.from(LocalDateTime.now().plusMinutes(Long.parseLong(minuteExpiration)).atZone(ZoneId.systemDefault()).toInstant());
 
         return Jwts.builder()
                 .setClaims(claims)
@@ -65,10 +67,12 @@ public class JwtUtils {
      * @return a string jwt
      */
     public String generateJwtRefreshToken(String username) {
+        log.info("generating refresh token...");
         Date date = new Date(System.currentTimeMillis());
         Map<String, Object> claims = new HashMap<>();
-        Date refreshDate = Date.from(LocalDateTime.now().plusHours(Long.parseLong(refreshExpiration)).atZone(ZoneId.systemDefault()).toInstant());
-
+//        Date refreshDate = Date.from(LocalDateTime.now().plusHours(Long.parseLong(refreshExpiration)).atZone(ZoneId.systemDefault()).toInstant());
+        Date refreshDate = Date.from(LocalDateTime.now().plusMinutes(0).atZone(ZoneId.systemDefault()).toInstant());
+        log.warn("refresh date : " + refreshDate);
         return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(date)
                 .setExpiration(refreshDate)
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
@@ -102,7 +106,11 @@ public class JwtUtils {
      * @return a string username
      */
     public String getUsernameFromToken(String token) {
-        return getClaimFromToken(token, Claims::getSubject);
+        log.error("subject : " + Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject());
+
+
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
+//        return getClaimFromToken(token, Claims::getSubject);
     }
 
     /**
@@ -131,8 +139,8 @@ public class JwtUtils {
      * @return true false or null
      */
     public Boolean validateToken(String token, UserDetails user) {
+        log.info("checking if token is still valid...");
         final String username = getUsernameFromToken(token);
-        log.error(username);
         return username.equals(user.getUsername()) && !isTokenExpired(token);
     }
 
