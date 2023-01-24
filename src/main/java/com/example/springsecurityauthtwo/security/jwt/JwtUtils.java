@@ -22,8 +22,6 @@ public class JwtUtils {
     private String secret;
     @Value("${com.example.minuteExpiration}")
     private String minuteExpiration;
-    @Value("${com.example.refreshExpiration}")
-    private String refreshExpiration;
 
 
     /**
@@ -32,7 +30,7 @@ public class JwtUtils {
      * @return a Map containing both tokens
      */
     public Map<String, String> generateTokenAndRefresh(String username) {
-        log.info("generating new Access Token and new Refresh Token");
+        log.info("generating new Access Token and new Refresh Token...");
         String refreshToken = generateJwtRefreshToken(username);
         String token = generateJwtToken(username);
         Map<String, String> tokens = new HashMap<>();
@@ -70,9 +68,7 @@ public class JwtUtils {
         log.info("generating refresh token...");
         Date date = new Date(System.currentTimeMillis());
         Map<String, Object> claims = new HashMap<>();
-//        Date refreshDate = Date.from(LocalDateTime.now().plusHours(Long.parseLong(refreshExpiration)).atZone(ZoneId.systemDefault()).toInstant());
-        Date refreshDate = Date.from(LocalDateTime.now().plusMinutes(0).atZone(ZoneId.systemDefault()).toInstant());
-        log.warn("refresh date : " + refreshDate);
+        Date refreshDate = Date.from(LocalDateTime.now().plusDays(1).atZone(ZoneId.systemDefault()).toInstant());
         return Jwts.builder().setClaims(claims).setSubject(username).setIssuedAt(date)
                 .setExpiration(refreshDate)
                 .signWith(SignatureAlgorithm.HS512, secret).compact();
@@ -106,11 +102,7 @@ public class JwtUtils {
      * @return a string username
      */
     public String getUsernameFromToken(String token) {
-        log.error("subject : " + Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject());
-
-
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody().getSubject();
-//        return getClaimFromToken(token, Claims::getSubject);
+        return getClaimFromToken(token, Claims::getSubject);
     }
 
     /**

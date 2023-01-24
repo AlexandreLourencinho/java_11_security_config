@@ -1,9 +1,7 @@
 package com.example.springsecurityauthtwo.security.services;
 
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
-import com.example.springsecurityauthtwo.security.model.entities.TokenUsed;
 import com.example.springsecurityauthtwo.security.repositories.AppUserRepository;
-import com.example.springsecurityauthtwo.security.repositories.TokenUsedRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,8 +9,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.Optional;
 
 /**
  * implementation of the loadUserByUsername overridden method

@@ -1,7 +1,5 @@
 package com.example.springsecurityauthtwo.security.jwt;
 
-import com.example.springsecurityauthtwo.security.model.entities.TokenUsed;
-import com.example.springsecurityauthtwo.security.services.TokenService;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.Jwts;
@@ -30,7 +28,6 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     private JwtUtils jwtUtils;
     private UserDetailsService userDetailsService;
-    private TokenService tokenService;
 
     /**
      * @param request
@@ -42,7 +39,7 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String requestToken = request.getHeader(SecurityConstants.HEADER_TOKEN);
-        if (StringUtils.startsWith(requestToken, SecurityConstants.TOKEN_START) ) {
+        if (StringUtils.startsWith(requestToken, SecurityConstants.TOKEN_START)) {
             String jwt = requestToken.substring(SecurityConstants.BEARER_SUBSTRING);
             try {
                 String username = jwtUtils.getUsernameFromToken(jwt);
@@ -88,29 +85,27 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         String username = e.getClaims().getSubject();
         log.error("after username : " + username);
         log.error("refresh exp date : " + e.getClaims().getExpiration());
-        Boolean isRefreshExpired = e.getClaims().getExpiration().before(Date.from(date.atZone(ZoneId.systemDefault()).toInstant() ) );
-        log.error("boolean expired : " + isRefreshExpired );
+        Boolean isRefreshExpired = e.getClaims().getExpiration().before(Date.from(date.atZone(ZoneId.systemDefault()).toInstant()));
+        log.error("boolean expired : " + isRefreshExpired);
         UserDetails user = userDetailsService.loadUserByUsername(username);
-        TokenUsed tokens = tokenService.loadUsersTokens(username);
 
-        if (StringUtils.isNotEmpty(refreshJwt) && Boolean.FALSE.equals(isRefreshExpired) ) {
+        if (StringUtils.isNotEmpty(refreshJwt) && Boolean.FALSE.equals(isRefreshExpired)) {
             log.error("here");
-            if (user != null ) {
+            if (user != null) {
                 log.info("refreshing the tokens....");
-                String newToken = jwtUtils.generateJwtToken(user.getUsername() );
+                String newToken = jwtUtils.generateJwtToken(user.getUsername());
                 request.setAttribute("newToken", newToken);
             } else {
                 log.error("refresh token is invalid");
                 request.setAttribute("invalidToken", "Refresh token is invalid");
             }
 
-        } else if (Boolean.TRUE.equals(isRefreshExpired) && tokens.getRefreshTokenAccount() + 1 < SecurityConstants.MAX_REFRESH) {
+        } else if (Boolean.TRUE.equals(isRefreshExpired)) {
             String newRefreshToken = jwtUtils.generateJwtRefreshToken(username);
-            tokenService.incrementRefreshAccount(username);
             request.setAttribute("newRefreshToken", newRefreshToken);
-            String newToken = jwtUtils.generateJwtToken(user.getUsername() );
+            String newToken = jwtUtils.generateJwtToken(user.getUsername());
             request.setAttribute("newToken", newToken);
-        } else if (tokens.getRefreshTokenAccount() + 1 >= SecurityConstants.MAX_REFRESH) {
+        } else {
             log.error(SecurityConstants.REFRESHED_TOO_MUCH);
             request.setAttribute("refreshExpired", "Refresh token expired.");
         }
