@@ -22,6 +22,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 /**
  * Security configuration class
+ * @author Alexandre Lourencinho
+ * @version 1.0
  */
 @Configuration
 @AllArgsConstructor
@@ -85,6 +87,7 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        // managing  cors, csrf, stateless policy and allowed url
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unhauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()

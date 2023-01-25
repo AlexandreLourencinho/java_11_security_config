@@ -22,6 +22,10 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
 
+/**
+ * @author Alexandre Lourencinho
+ * @version 1.0
+ */
 @Slf4j
 @AllArgsConstructor
 public class AuthTokenFilter extends OncePerRequestFilter {
@@ -30,11 +34,12 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     private UserDetailsService userDetailsService;
 
     /**
-     * @param request
-     * @param response
-     * @param filterChain
-     * @throws ServletException
-     * @throws IOException
+     * internal filter for request management
+     * @param request the HttpServletRequest object
+     * @param response the HttpServletResponse object
+     * @param filterChain FilterChain object provided by the servlet container giving a view into the invocation chain of a filtered request for a resource.
+     * @throws ServletException Exception that can be thrown by the Servlet
+     * @throws IOException base exceptions which occur while reading or accessing files, directories and streams
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -67,48 +72,14 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     }
 
     /**
-     * @param request
-     * @param e
+     * Expired jxt management
+     * @param request the httpservletrequest object
+     * @param e the ExpiredException error
      */
     public void manageExpiredToken(HttpServletRequest request, ExpiredJwtException e) {
         log.error("JWT Token is expired");
         request.setAttribute(SecurityConstants.EXPIRED, e.getMessage());
-        log.error("claims : " + e);
-        log.error("claims : " + e.getClaims());
-        // get the refresh jwt
-        String refreshJwt = request.getHeader(SecurityConstants.REFRESH_TOKEN).substring(SecurityConstants.REFRESH_SUBSTRING);
-        log.error(" test jwt 111" + Jwts.parser().setSigningKey("secret").parseClaimsJws(refreshJwt).getBody());
-
         // get username and comparing refresh jwt with actual datetime
-        LocalDateTime date = LocalDateTime.now();
-        log.error("before username");
-        String username = e.getClaims().getSubject();
-        log.error("after username : " + username);
-        log.error("refresh exp date : " + e.getClaims().getExpiration());
-        Boolean isRefreshExpired = e.getClaims().getExpiration().before(Date.from(date.atZone(ZoneId.systemDefault()).toInstant()));
-        log.error("boolean expired : " + isRefreshExpired);
-        UserDetails user = userDetailsService.loadUserByUsername(username);
-
-        if (StringUtils.isNotEmpty(refreshJwt) && Boolean.FALSE.equals(isRefreshExpired)) {
-            log.error("here");
-            if (user != null) {
-                log.info("refreshing the tokens....");
-                String newToken = jwtUtils.generateJwtToken(user.getUsername());
-                request.setAttribute("newToken", newToken);
-            } else {
-                log.error("refresh token is invalid");
-                request.setAttribute("invalidToken", "Refresh token is invalid");
-            }
-
-        } else if (Boolean.TRUE.equals(isRefreshExpired)) {
-            String newRefreshToken = jwtUtils.generateJwtRefreshToken(username);
-            request.setAttribute("newRefreshToken", newRefreshToken);
-            String newToken = jwtUtils.generateJwtToken(user.getUsername());
-            request.setAttribute("newToken", newToken);
-        } else {
-            log.error(SecurityConstants.REFRESHED_TOO_MUCH);
-            request.setAttribute("refreshExpired", "Refresh token expired.");
-        }
     }
 
 }

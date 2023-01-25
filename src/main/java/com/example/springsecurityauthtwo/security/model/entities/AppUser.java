@@ -9,8 +9,11 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 
+
 /**
  * User entity / model
+ * @author Alexandre Lourencinho
+ * @version 1.0
  */
 @Getter
 @Setter

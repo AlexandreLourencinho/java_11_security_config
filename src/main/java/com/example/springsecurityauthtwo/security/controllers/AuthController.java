@@ -32,6 +32,8 @@ import java.util.stream.Collectors;
 
 /**
  * Controller for the authentification, account creation, role management, etc
+ * @author Alexandre Lourencinho
+ * @version 1.0
  */
 @RestController
 @AllArgsConstructor
@@ -84,14 +86,14 @@ public class AuthController {
         log.warn("registering a new user...");
         Map<String, Object> responseBody = new HashMap<>();
 
-        // vérifie si le nom d'utilisateur existe déjà
+        // check if username already taken
         if (Boolean.TRUE.equals(userServices.usernameAlreadyExists(signupRequest.getUsername()))) {
             log.warn(SecurityConstants.ERROR_USERNAME_TAKEN);
             responseBody.put(SecurityConstants.ERROR, SecurityConstants.ERROR_USERNAME_TAKEN);
             return ResponseEntity.status(HttpStatus.CONFLICT).contentType(MediaType.APPLICATION_JSON).body(responseBody);
         }
 
-        // vérifie si l'adresse email existe déjà
+        // check if email already taken
         if (Boolean.TRUE.equals(userServices.emailAlreadyExists(signupRequest.getEmail()))) {
             log.warn(SecurityConstants.ERROR_MAIL_TAKEN);
             responseBody.put(SecurityConstants.ERROR, SecurityConstants.ERROR_MAIL_TAKEN);
@@ -103,7 +105,7 @@ public class AuthController {
                 .setEmail(signupRequest.getEmail())
                 .setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 
-        // définir les rôles de l'utilisateur
+        // check user's role
         Set<String> strRoles = signupRequest.getRoles();
         Set<AppRole> roles = new HashSet<>();
         if (strRoles == null) {
@@ -128,24 +130,28 @@ public class AuthController {
     @GetMapping("/refreshToken")
     public ResponseEntity<Map<String, Object>> refreshToken(HttpServletRequest request) {
         Map<String, Object> responseBody = new HashMap<>();
-        // Récupération du jeton de rafraîchissement depuis l'en-tête de la requête
+        // get jwt token from request header
         String headerRefreshToken = request.getHeader(SecurityConstants.REFRESH_TOKEN);
 
-        // Vérification de l'existence du jeton de rafraîchissement
+        // check if token exists
         if (StringUtils.isEmpty(headerRefreshToken)) {
             responseBody.put(SecurityConstants.ERROR, "no refresh token provided");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(responseBody);
         }
 
         try {
+
             String refreshToken = headerRefreshToken.substring(SecurityConstants.REFRESH_SUBSTRING);
             String username = jwtUtils.getUsernameFromToken(refreshToken);
             UserDetails user = userDetailsService.loadUserByUsername(username);
+
+            // check if token is valid, send error otherwise
             if (Boolean.FALSE.equals(jwtUtils.validateToken(refreshToken, user))) {
                 responseBody.put(SecurityConstants.ERROR, SecurityConstants.INVALID_REFRESH);
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(responseBody);
             }
 
+            // response with token
             String newAccessToken = jwtUtils.generateJwtToken(username);
             responseBody.put("newToken", SecurityConstants.TOKEN_START + newAccessToken);
             return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
@@ -162,26 +168,26 @@ public class AuthController {
      * @param request the HttpServlet Request
      * @return the modified user or an error
      */
-    @PostMapping("/user/update")
+    @PostMapping("/update")
     public ResponseEntity<Map<String, Object>> updateUser(@Valid @RequestBody SignupRequest userDto, HttpServletRequest request) {
         Map<String, Object> responseBody = new HashMap<>();
 
-        // Récupère le nom d'utilisateur à partir du jeton JWT
+        // get username from jwt and update its informations
         String username = jwtUtils.getUsernameFromToken(request.getHeader(SecurityConstants.HEADER_TOKEN).substring(SecurityConstants.BEARER_SUBSTRING));
-
-        // Met à jour les informations de l'utilisateur
         AppUser updatedUser = userServices.updateUserInfo(userDto, username);
 
         if (Objects.nonNull(updatedUser)) {
-            // Récupère les rôles de l'utilisateur mis à jour
             List<String> roles = updatedUser.getRoles().stream()
                     .map(role -> String.valueOf(role.getName()))
                     .collect(Collectors.toList());
 
-            // Crée une réponse contenant les informations de l'utilisateur mis à jour
+            // build a response with updated user info
             UserInfoResponse responseInfo = new UserInfoResponse().setUsername(updatedUser.getUsername())
                     .setRoles(roles);
-
+            if (!Objects.equals(username, userDto.getUsername())) {
+                String newToken = jwtUtils.generateJwtToken(userDto.getUsername());
+                responseBody.put("token", newToken);
+            }
             responseBody.put("data", responseInfo);
             return ResponseEntity.ok(responseBody);
         } else {
@@ -193,7 +199,6 @@ public class AuthController {
     @GetMapping("/test")
     @PreAuthorize("hasRole('USER')")
     public void testController() {
-        // TODO document method here just to test the token
     }
 
 }

@@ -12,7 +12,9 @@ import java.util.*;
 import java.util.function.Function;
 
 /**
- * Tools used for the JWT management
+ * * Tools used for the JWT management
+ * @author Alexandre Lourencinho
+ * @version 1.0
  */
 @Slf4j
 @Component

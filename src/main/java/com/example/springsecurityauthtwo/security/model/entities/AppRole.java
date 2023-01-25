@@ -9,8 +9,11 @@ import org.hibernate.Hibernate;
 import javax.persistence.*;
 import java.util.Objects;
 
+
 /**
  * Model / entity type for users' roles
+ * @author Alexandre Lourencinho
+ * @version 1.0
  */
 @Getter
 @Setter

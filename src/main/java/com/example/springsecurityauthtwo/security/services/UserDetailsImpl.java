@@ -12,8 +12,11 @@ import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+
 /**
  * an implementation of the UserDetails interface
+ * @author Alexandre Lourencinho
+ * @version 1.0
  */
 @Data
 @AllArgsConstructor

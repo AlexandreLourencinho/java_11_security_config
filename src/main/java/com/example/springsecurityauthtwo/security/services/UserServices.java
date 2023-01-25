@@ -8,6 +8,11 @@ import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
 
 import java.util.Set;
 
+/**
+ * Interface for users management methods
+ * @author Alexandre Lourencinho
+ * @version 1.0
+ */
 public interface UserServices {
 
     /**

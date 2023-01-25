@@ -2,7 +2,7 @@ package com.example.springsecurityauthtwo;
 
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
-import com.example.springsecurityauthtwo.security.repositories.AppRoleRepository;
+import com.example.springsecurityauthtwo.security.model.entities.repositories.AppRoleRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
