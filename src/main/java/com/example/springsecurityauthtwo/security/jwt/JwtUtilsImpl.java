@@ -14,9 +14,10 @@ import java.util.*;
 import java.util.function.Function;
 
 /**
- * * Tools used for the JWT management
+ * Tools used for the JWT management
+ *
  * @author Alexandre Lourencinho
- * @version 1.0
+ * @version 1.1
  */
 @Slf4j
 @Component
@@ -112,6 +113,7 @@ public class JwtUtilsImpl implements JwtUtils {
 
     /**
      * check if token is expired
+     *
      * @param token the jwt token
      * @return true or false (or null)
      */
@@ -122,16 +124,12 @@ public class JwtUtilsImpl implements JwtUtils {
 
     /**
      * Get all claims from a JWT Token
+     *
      * @param token the jwt token, access or refresh
      * @return Claims object
      */
     private Claims getAllClaimsFromToken(String token) {
-        try {
-            return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
-        } catch (RuntimeException e) {
-            log.warn("putain");
-            return null;
-        }
+        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
     }
 
 }

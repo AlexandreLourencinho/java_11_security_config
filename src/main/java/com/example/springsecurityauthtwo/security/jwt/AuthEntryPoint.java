@@ -11,12 +11,14 @@ import org.springframework.stereotype.Component;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * @author Alexandre Lourencinho
- * @version 1.0
+ * @version 1.1
  */
 @Slf4j
 @Component
@@ -33,16 +35,28 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
      */
     @Override
     public void commence(HttpServletRequest request, HttpServletResponse response, AuthenticationException authException) throws IOException {
-        log.error("Unauthorized error: {}", authException.getMessage());
 
-        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        final String expired = (String) request.getAttribute(SecurityConstants.EXPIRED);
+        log.error("Unauthorized error: {}, {}", authException.getMessage(), authException.getClass());
+
         final Map<String, Object> body = new HashMap<>();
         final ObjectMapper mapper = new ObjectMapper();
-        body.put(SecurityConstants.STATUS, HttpServletResponse.SC_FORBIDDEN);
-        body.put(SecurityConstants.ERROR, SecurityConstants.EXPIRED);
-        body.put(SecurityConstants.MESSAGE, expired);
+        response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+        Arrays.stream(SecurityConstants.getErrorList()).forEach(error -> {
+
+            if(Objects.nonNull(request.getAttribute(error))) {
+                String errMessage = null;
+                body.put(SecurityConstants.STATUS, HttpServletResponse.SC_FORBIDDEN);
+                body.put(SecurityConstants.ERROR, error);
+                for(String errorMessage : SecurityConstants.getErrorsMessageList()) {
+                    if(errorMessage.startsWith(error)) {
+                        errMessage = errorMessage;
+                        break;
+                    }
+                }
+                body.put(SecurityConstants.MESSAGE, errMessage);
+            }
+        });
+
         body.put(SecurityConstants.PATH, request.getServletPath());
         mapper.writeValue(response.getOutputStream(), body);
 
