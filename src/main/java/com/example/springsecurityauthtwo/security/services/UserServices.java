@@ -71,4 +71,10 @@ public interface UserServices {
      * @return the updated user
      */
     AppUser updateUserInfo(SignupRequest user, String username);
+
+    /**
+     * used to delete a user
+     * @param user the user to be deleted
+     */
+    void deleteUser(AppUser user);
 }

@@ -1,7 +1,7 @@
 package com.example.springsecurityauthtwo.security;
 
 import com.example.springsecurityauthtwo.security.jwt.AuthEntryPoint;
-import com.example.springsecurityauthtwo.security.jwt.AuthTokenFilter;
+import com.example.springsecurityauthtwo.security.jwt.AuthTokenFilterImpl;
 import com.example.springsecurityauthtwo.security.jwt.JwtUtils;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 /**
  * Security configuration class
+ *
  * @author Alexandre Lourencinho
  * @version 1.0
  */
@@ -65,8 +66,8 @@ public class SecurityConfig {
      * @return the filter
      */
     @Bean
-    public AuthTokenFilter authTokenFilter() {
-        return new AuthTokenFilter(jwtUtils, userDetailsService);
+    public AuthTokenFilterImpl authTokenFilter() {
+        return new AuthTokenFilterImpl(jwtUtils, userDetailsService);
     }
 
     /**
@@ -92,7 +93,7 @@ public class SecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(unhauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers("/user/signup/**", "/user/signin/**", "/h2-console/**", "/user/refreshToken").permitAll()
+                .antMatchers("/user/signup/**", "/user/signing/**", "/h2-console/**", "/user/refreshToken").permitAll()
                 .anyRequest().authenticated();
         http.headers().frameOptions().sameOrigin();
         http.authenticationProvider(authProvider());

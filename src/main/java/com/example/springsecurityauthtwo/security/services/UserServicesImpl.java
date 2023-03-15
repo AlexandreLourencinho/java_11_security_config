@@ -115,4 +115,10 @@ public class UserServicesImpl implements UserServices {
         return userRepository.save(oldUser);
     }
 
+    @Override
+    public void deleteUser(AppUser user) {
+        log.info("deleting user" + user.getUsername() + "....");
+        userRepository.delete(user);
+    }
+
 }
