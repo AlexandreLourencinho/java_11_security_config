@@ -1,8 +1,12 @@
 package com.example.springsecurityauthtwo.security.jwt;
 
+import com.auth0.jwt.exceptions.*;
+import com.example.springsecurityauthtwo.security.exceptions.TokenException;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 import io.jsonwebtoken.ExpiredJwtException;
-import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.IncorrectClaimException;
+import io.jsonwebtoken.InvalidClaimException;
+import io.jsonwebtoken.MissingClaimException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -18,9 +22,6 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.Date;
 
 /**
  * @author Alexandre Lourencinho
@@ -35,36 +36,19 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     /**
      * internal filter for request management
-     * @param request the HttpServletRequest object
-     * @param response the HttpServletResponse object
+     *
+     * @param request     the HttpServletRequest object
+     * @param response    the HttpServletResponse object
      * @param filterChain FilterChain object provided by the servlet container giving a view into the invocation chain of a filtered request for a resource.
      * @throws ServletException Exception that can be thrown by the Servlet
-     * @throws IOException base exceptions which occur while reading or accessing files, directories and streams
+     * @throws IOException      base exceptions which occur while reading or accessing files, directories and streams
      */
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String requestToken = request.getHeader(SecurityConstants.HEADER_TOKEN);
+
         if (StringUtils.startsWith(requestToken, SecurityConstants.TOKEN_START)) {
-            String jwt = requestToken.substring(SecurityConstants.BEARER_SUBSTRING);
-            try {
-                String username = jwtUtils.getUsernameFromToken(jwt);
-                if (StringUtils.isNotEmpty(username)
-                        &&
-                        null == SecurityContextHolder.getContext().getAuthentication()) {
-                    UserDetails user = userDetailsService.loadUserByUsername(username);
-                    if (Boolean.TRUE.equals(jwtUtils.validateToken(jwt, user))) {
-                        UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
-                        auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-                        SecurityContextHolder.getContext().setAuthentication(auth);
-                    }
-                }
-            } catch (IllegalArgumentException e) {
-                log.error("Unable to fetch JWT Token");
-            } catch (ExpiredJwtException e) {
-                manageExpiredToken(request, e);
-            } catch (Exception e) {
-                log.error(e.getMessage());
-            }
+            testmethod1(request, requestToken);
         } else {
             log.warn("JWT token does not begin with Bearer String " + requestToken);
         }
@@ -73,8 +57,9 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
     /**
      * Expired jxt management
+     *
      * @param request the httpservletrequest object
-     * @param e the ExpiredException error
+     * @param e       the ExpiredException error
      */
     public void manageExpiredToken(HttpServletRequest request, ExpiredJwtException e) {
         log.error("JWT Token is expired");
@@ -82,4 +67,55 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         // get username and comparing refresh jwt with actual datetime
     }
 
+
+    public void testmethod1(HttpServletRequest request, String requestToken) {
+        String jwt = requestToken.substring(SecurityConstants.BEARER_SUBSTRING);
+        try {
+            testmethod2(request, jwt);
+        } catch (IllegalArgumentException e) {
+            log.error("Unable to fetch JWT Token");
+            throw new TokenException(e.getMessage());
+        } catch (ExpiredJwtException e) {
+            manageExpiredToken(request, e);
+            throw new TokenException(e.getMessage());
+        } catch (SignatureVerificationException e) {
+            log.error("Invalid JWT signature: {}", e.getMessage());
+            throw new TokenException(e.getMessage());
+        } catch (TokenExpiredException e) {
+            log.error("JWT token is expired: {}", e.getMessage());
+            throw new TokenException(e.getMessage());
+        } catch (MissingClaimException e) {
+            log.error("JWT token is unsupported: {}", e.getMessage());
+            throw new TokenException(e.getMessage());
+        } catch (JWTDecodeException e) {
+            log.error("JWT claims string is empty: {}", e.getMessage());
+            throw new TokenException(e.getMessage());
+        } catch (AlgorithmMismatchException | IncorrectClaimException e) {
+            log.error("JWT alg mismatch or incorrect claim : {}", e.getMessage());
+            throw new TokenException(e.getMessage());
+        } catch (InvalidClaimException e) {
+            log.error("InvalidClaimException");
+            throw new TokenException(e.getMessage());
+        } catch (JWTVerificationException e) {
+            log.error("JWTVerificationException at end");
+            throw new TokenException(e.getMessage());
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+    }
+
+
+    public void testmethod2(HttpServletRequest request, String jwt) {
+        String username = jwtUtils.getUsernameFromToken(jwt);
+        if (StringUtils.isNotEmpty(username)
+                &&
+                null == SecurityContextHolder.getContext().getAuthentication()) {
+            UserDetails user = userDetailsService.loadUserByUsername(username);
+            if (Boolean.TRUE.equals(jwtUtils.validateToken(jwt, user))) {
+                UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());
+                auth.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                SecurityContextHolder.getContext().setAuthentication(auth);
+            }
+        }
+    }
 }

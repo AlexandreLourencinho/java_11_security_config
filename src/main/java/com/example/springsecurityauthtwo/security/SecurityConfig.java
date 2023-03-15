@@ -92,7 +92,7 @@ public class SecurityConfig {
                 .exceptionHandling().authenticationEntryPoint(unhauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers("/user/signup/**", "/user/signin/**", "/h2-console/**", "/user/refreshToken").permitAll()
+                .antMatchers("/user/signup/**", "/user/signing/**", "/h2-console/**", "/user/refreshToken").permitAll()
                 .anyRequest().authenticated();
         http.headers().frameOptions().sameOrigin();
         http.authenticationProvider(authProvider());
