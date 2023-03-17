@@ -132,7 +132,6 @@ class AuthControllerImplTest {
                 .andReturn();
         String response = result.getResponse().getContentAsString();
         Map<String, Object> responseBody = objectMapper.readValue(response, new TypeReference<>() {});
-        System.out.println("respBody : " + responseBody);
         assertEquals("user test_user updated successfully", responseBody.get("message"));
     }
 }
