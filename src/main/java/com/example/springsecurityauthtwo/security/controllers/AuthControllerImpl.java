@@ -188,9 +188,9 @@ public class AuthControllerImpl implements AuthController {
     @PutMapping("/update/{userId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser) {
-
+        // TODO meilleure response qu'une simple string ?
         MessageResponse response = new MessageResponse();
-        AppUser user = userServices.findById(Long.getLong(userId));
+        AppUser user = userServices.findById(Long.parseLong(userId));
 
         if (Objects.nonNull(user)) {
             String username = user.getUsername();

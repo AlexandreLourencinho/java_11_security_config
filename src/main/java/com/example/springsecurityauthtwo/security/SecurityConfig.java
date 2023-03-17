@@ -3,6 +3,7 @@ package com.example.springsecurityauthtwo.security;
 import com.example.springsecurityauthtwo.security.jwt.AuthEntryPoint;
 import com.example.springsecurityauthtwo.security.jwt.AuthTokenFilterImpl;
 import com.example.springsecurityauthtwo.security.jwt.JwtUtils;
+import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
@@ -88,12 +89,12 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        // managing  cors, csrf, stateless policy and allowed url
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unhauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
-                .antMatchers("/user/signup/**", "/user/signing/**", "/h2-console/**", "/user/refreshToken").permitAll()
+                .antMatchers("/actuator/**").hasRole("ACTUATOR")
+                .antMatchers(SecurityConstants.SIGNUP_URL, SecurityConstants.SIGNING_URL, "/h2-console/**", "/user/refreshToken").permitAll()
                 .anyRequest().authenticated();
         http.headers().frameOptions().sameOrigin();
         http.authenticationProvider(authProvider());

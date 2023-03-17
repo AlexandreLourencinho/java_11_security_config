@@ -8,5 +8,6 @@ package com.example.springsecurityauthtwo.security.model.enumeration;
 public enum ERole {
     ROLE_USER,
     ROLE_MODERATOR,
+    ROLE_ACTUATOR,
     ROLE_ADMIN
 }

@@ -1,4 +1,4 @@
-package com.example.springsecurityauthtwo.security.model.entities.repositories;
+package com.example.springsecurityauthtwo.security.repositories;
 
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
 import org.springframework.data.repository.CrudRepository;

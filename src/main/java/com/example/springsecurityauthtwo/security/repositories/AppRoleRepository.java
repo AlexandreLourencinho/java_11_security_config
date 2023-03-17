@@ -1,4 +1,4 @@
-package com.example.springsecurityauthtwo.security.model.entities.repositories;
+package com.example.springsecurityauthtwo.security.repositories;
 
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;

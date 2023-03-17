@@ -11,12 +11,14 @@ public class SecurityConstants {
     private SecurityConstants() {
     }
 
-    /**
-     * --- String constants ---
-     **/
+    /* * --- String constants --- * */
+
     /* format string */
     public static final String ERROR_MANAGEMENT = "{} : {}";
 
+    /* url strings */
+    public static final String SIGNUP_URL = "/user/signup";
+    public static final String SIGNING_URL = "/user/signing";
 
     /* errors keys strings */
     public static final String ERROR = "Error";
@@ -28,11 +30,14 @@ public class SecurityConstants {
     public static final String INCORRECT_TOKEN_FORMAT = "FormatError";
     public static final String SIGNATURE = "SignatureError";
     public static final String UNSUPPORTED = "UnsupportedError";
+    public static final String NOBEARER = "NoBearerError";
 
+    /* Entities error*/
     public static final String ERROR_ROLE = "Error: role not found. ";
     public static final String ERROR_USERNAME_TAKEN = "Error : Username is already taken. ";
     public static final String ERROR_MAIL_TAKEN = "Error : Email is already use. ";
 
+    /* not valid token errors */
     public static final String INVALID_TOKEN_MESSAGE = "Token is invalid. ";
     public static final String INVALID_REFRESH = "Refresh token is invalid. ";
 
@@ -43,6 +48,8 @@ public class SecurityConstants {
     public static final String MALFORMED_JWT_MESSAGE = MALFORMED + " - JWT was not correctly constructed. ";
     public static final String SIGNATURE_MESSAGE = SIGNATURE + " - Can't verify the JWT signature. ";
     public static final String UNSUPPORTED_MESSAGE = UNSUPPORTED + " - The jwt is in an unsupported format. ";
+    public static final String NOBEARER_MESSAGE = NOBEARER + " - string doesn't start with Bearer. ";
+    public static final String UNAUTHORIZED_MESSAGE = UNAUTHORIZED + " - We don't know what happened but something went wrong";
 
 
     /* tokens strings */
@@ -56,16 +63,14 @@ public class SecurityConstants {
     public static final String PATH = "Path";
 
 
-    /**
-     * --- number constants ---
-     **/
+    /* * --- number constants --- * */
     public static final int BEARER_SUBSTRING = 7;
     public static final int REFRESH_SUBSTRING = 8;
 
 
-    private static final String[] ERRORS_LIST = {EXPIRED, CLAIMS_INVALID, MALFORMED, INCORRECT_TOKEN_FORMAT, SIGNATURE, UNSUPPORTED};
+    private static final String[] ERRORS_LIST = {EXPIRED, CLAIMS_INVALID, MALFORMED, INCORRECT_TOKEN_FORMAT, SIGNATURE, UNSUPPORTED, NOBEARER};
     private static final String[] ERRORS_MESSAGE_LIST = {EXPIRED_ERROR_MESSAGE, CLAIMS_INVALID_MESSAGE, INVALID_TOKEN_MESSAGE,
-            MALFORMED_JWT_MESSAGE, INCORRECT_TOKEN_FORMAT_MESSAGE, SIGNATURE_MESSAGE, UNSUPPORTED_MESSAGE};
+            MALFORMED_JWT_MESSAGE, INCORRECT_TOKEN_FORMAT_MESSAGE, SIGNATURE_MESSAGE, UNSUPPORTED_MESSAGE, NOBEARER_MESSAGE};
 
     public static String[] getErrorList() {
         return ERRORS_LIST;
