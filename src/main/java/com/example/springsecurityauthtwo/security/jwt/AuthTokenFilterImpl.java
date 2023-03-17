@@ -48,8 +48,12 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements  AuthTo
 
             manageJwtAuthAndErrors(request, jwt);
 
+        } else if (!request.getServletPath().isBlank() && !request.getServletPath().contains(SecurityConstants.SIGNUP_URL) && !request.getServletPath().contains(SecurityConstants.SIGNING_URL)) {
+            log.warn("JWT token does not begin with Bearer String " + requestToken);
+            request.setAttribute(SecurityConstants.NOBEARER, SecurityConstants.NOBEARER_MESSAGE);
+            throw new TokenException(SecurityConstants.NOBEARER_MESSAGE);
         } else {
-            log.warn("JWT token does not begin with Bearer String " + requestToken); // TODO manage not begining with bearer
+            request.setAttribute(SecurityConstants.UNAUTHORIZED, SecurityConstants.UNAUTHORIZED_MESSAGE);
         }
         filterChain.doFilter(request, response);
     }

@@ -1,7 +1,7 @@
 package com.example.springsecurityauthtwo.security.services;
 
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
-import com.example.springsecurityauthtwo.security.model.entities.repositories.AppUserRepository;
+import com.example.springsecurityauthtwo.security.repositories.AppUserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.userdetails.UserDetails;

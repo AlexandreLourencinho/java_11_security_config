@@ -2,7 +2,7 @@ package com.example.springsecurityauthtwo;
 
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
-import com.example.springsecurityauthtwo.security.model.entities.repositories.AppRoleRepository;
+import com.example.springsecurityauthtwo.security.repositories.AppRoleRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.CommandLineRunner;
@@ -27,7 +27,7 @@ public class SpringSecurityAuthTwoApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        ERole[] erolesAr = {ERole.ROLE_ADMIN, ERole.ROLE_USER, ERole.ROLE_MODERATOR};
+        ERole[] erolesAr = {ERole.ROLE_ADMIN, ERole.ROLE_USER, ERole.ROLE_MODERATOR, ERole.ROLE_ACTUATOR};
         List<ERole> listRoles = new ArrayList<>(List.of(erolesAr));
         listRoles.forEach(role -> {
             AppRole rol = new AppRole().setName(role);
