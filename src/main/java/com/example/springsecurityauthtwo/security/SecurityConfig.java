@@ -94,7 +94,7 @@ public class SecurityConfig {
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers("/actuator/**").hasRole("ACTUATOR")
-                .antMatchers(SecurityConstants.SIGNUP_URL, SecurityConstants.SIGNING_URL, "/h2-console/**", "/user/refreshToken").permitAll()
+                .antMatchers("/user/public/**", "/h2-console/**").permitAll()
                 .anyRequest().authenticated();
         http.headers().frameOptions().sameOrigin();
         http.authenticationProvider(authProvider());

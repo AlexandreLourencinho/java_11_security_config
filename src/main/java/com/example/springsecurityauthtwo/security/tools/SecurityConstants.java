@@ -17,8 +17,7 @@ public class SecurityConstants {
     public static final String ERROR_MANAGEMENT = "{} : {}";
 
     /* url strings */
-    public static final String SIGNUP_URL = "/user/signup";
-    public static final String SIGNING_URL = "/user/signing";
+    public static final String PUBLIC_URL = "/public/";
 
     /* errors keys strings */
     public static final String ERROR = "Error";
