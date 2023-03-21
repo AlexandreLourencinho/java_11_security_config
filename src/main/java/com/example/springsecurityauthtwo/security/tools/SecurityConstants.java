@@ -17,8 +17,7 @@ public class SecurityConstants {
     public static final String ERROR_MANAGEMENT = "{} : {}";
 
     /* url strings */
-    public static final String SIGNUP_URL = "/user/signup";
-    public static final String SIGNING_URL = "/user/signing";
+    public static final String PUBLIC_URL = "/public/";
 
     /* errors keys strings */
     public static final String ERROR = "Error";
@@ -36,6 +35,7 @@ public class SecurityConstants {
     public static final String ERROR_ROLE = "Error: role not found. ";
     public static final String ERROR_USERNAME_TAKEN = "Error : Username is already taken. ";
     public static final String ERROR_MAIL_TAKEN = "Error : Email is already use. ";
+    public static final String USER_NOT_FOUND = "Error: user not found";
 
     /* not valid token errors */
     public static final String INVALID_TOKEN_MESSAGE = "Token is invalid. ";

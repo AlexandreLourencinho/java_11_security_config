@@ -100,13 +100,29 @@ public class UserServicesImpl implements UserServices {
     }
 
     @Override
+    public List<AppUser> findAll() {
+        log.info("retrieving list of all users...");
+        Iterable<AppUser> userIt = userRepository.findAll();
+        List<AppUser> listUser = new ArrayList<>();
+        userIt.forEach(listUser::add);
+        return listUser;
+    }
+
+    @Override
     public AppUser updateUserInfo(SignupRequest user, String username) {
         AppUser oldUser = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UserNotFoundException("User", "username", username));
-        Set<AppRole> enumRoles = user.getRoles().stream()
-                .map(role -> roleRepository.findByName(ERole.valueOf(role))
-                        .orElseThrow(() -> new UserNotFoundException("Role", "name", role)))
-                .collect(Collectors.toSet());
+        Set<AppRole> enumRoles;
+        log.warn("user : {}", user);
+        if(Objects.nonNull(user.getRoles())) {
+            enumRoles = user.getRoles().stream()
+                    .map(role -> roleRepository.findByName(ERole.valueOf(role))
+                            .orElseThrow(() -> new UserNotFoundException("Role", "name", role)))
+                    .collect(Collectors.toSet());
+        } else {
+            enumRoles = oldUser.getRoles();
+        }
+
 
         oldUser.setUsername(user.getUsername())
                 .setPassword(user.getPassword())

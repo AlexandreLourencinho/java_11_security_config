@@ -5,6 +5,7 @@ import com.example.springsecurityauthtwo.security.model.dtos.SignupRequest;
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
+import com.example.springsecurityauthtwo.security.services.AuthControllerServices;
 import com.example.springsecurityauthtwo.security.services.UserServices;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -69,7 +70,7 @@ class AuthControllerImplTest {
 
         String requestBody = objectMapper.writeValueAsString(request);
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(SecurityConstants.SIGNUP_URL)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/user/public/signup")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk())
@@ -97,7 +98,7 @@ class AuthControllerImplTest {
                 .setUsername(this.username)
                 .setPassword(this.password);
         String requestBody = objectMapper.writeValueAsString(loginRequest);
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post(SecurityConstants.SIGNING_URL)
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.post("/user/public/signing")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk())

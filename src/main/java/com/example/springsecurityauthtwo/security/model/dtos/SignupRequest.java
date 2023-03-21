@@ -8,6 +8,7 @@ import java.util.Set;
 /**
  * Contains username, email, passsword and roles (usually empty array)
  * Eponymous function
+ *
  * @author Alexandre Lourencinho
  * @version 1.0
  */
