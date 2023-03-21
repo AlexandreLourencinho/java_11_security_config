@@ -35,6 +35,7 @@ public class SecurityConstants {
     public static final String ERROR_ROLE = "Error: role not found. ";
     public static final String ERROR_USERNAME_TAKEN = "Error : Username is already taken. ";
     public static final String ERROR_MAIL_TAKEN = "Error : Email is already use. ";
+    public static final String USER_NOT_FOUND = "Error: user not found";
 
     /* not valid token errors */
     public static final String INVALID_TOKEN_MESSAGE = "Token is invalid. ";

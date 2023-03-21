@@ -3,7 +3,6 @@ package com.example.springsecurityauthtwo.security;
 import com.example.springsecurityauthtwo.security.jwt.AuthEntryPoint;
 import com.example.springsecurityauthtwo.security.jwt.AuthTokenFilterImpl;
 import com.example.springsecurityauthtwo.security.jwt.JwtUtils;
-import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
