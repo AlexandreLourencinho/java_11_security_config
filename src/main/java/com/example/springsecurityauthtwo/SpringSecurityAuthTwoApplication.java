@@ -27,8 +27,8 @@ public class SpringSecurityAuthTwoApplication implements CommandLineRunner {
 
     @Override
     public void run(String... args) {
-        ERole[] erolesAr = {ERole.ROLE_ADMIN, ERole.ROLE_USER, ERole.ROLE_MODERATOR, ERole.ROLE_ACTUATOR};
-        List<ERole> listRoles = new ArrayList<>(List.of(erolesAr));
+        ERole[] eRolesAr = {ERole.ROLE_ADMIN, ERole.ROLE_USER, ERole.ROLE_MODERATOR, ERole.ROLE_ACTUATOR};
+        List<ERole> listRoles = new ArrayList<>(List.of(eRolesAr));
         listRoles.forEach(role -> {
             AppRole rol = new AppRole().setName(role);
             roleRepository.save(rol);
