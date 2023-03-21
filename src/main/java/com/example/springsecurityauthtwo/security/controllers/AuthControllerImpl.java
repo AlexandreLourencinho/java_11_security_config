@@ -47,8 +47,21 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    @PostMapping("/update")
-    @PreAuthorize("hasRole('USER')")
+    @GetMapping("/list")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<List<UserInfoResponse>> getUsersList(HttpServletRequest request) {
+        return authControllerServices.getUsersList(request);
+    }
+
+    @Override
+    @GetMapping("")
+    public ResponseEntity<UserInfoResponse> getUser(HttpServletRequest request) {
+        return authControllerServices.getUser(request);
+    }
+
+    @Override
+    @PutMapping("/update")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<Map<String, Object>> updateUser(@Valid @RequestBody SignupRequest userDto, HttpServletRequest request) {
         return authControllerServices.updateUser(userDto, request);
     }
