@@ -24,10 +24,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -134,5 +131,7 @@ class AuthControllerImplTest {
         String response = result.getResponse().getContentAsString();
         Map<String, Object> responseBody = objectMapper.readValue(response, new TypeReference<>() {});
         assertEquals("user test_user updated successfully", responseBody.get("message"));
+        List<AppUser> listUser = userServices.findAll();
+        assertTrue(listUser.stream().anyMatch(user -> Objects.equals(user.getUsername(), signupRequest.getUsername())));
     }
 }
