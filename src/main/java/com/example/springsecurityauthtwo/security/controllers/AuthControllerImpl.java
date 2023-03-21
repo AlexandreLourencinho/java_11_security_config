@@ -48,7 +48,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @GetMapping("/list")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<List<UserInfoResponse>> getUsersList(HttpServletRequest request) {
         return authControllerServices.getUsersList(request);
     }
@@ -68,7 +68,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PutMapping("/update/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<MessageResponse> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser) {
         return authControllerServices.updateSelectedUser(Long.parseLong(userId), updatedUser);
 
@@ -76,20 +76,20 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @DeleteMapping("/delete")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public ResponseEntity<MessageResponse> deleteUser(HttpServletRequest request, DeleteRequestConfirmation deleteRequest) {
         return authControllerServices.deleteUser(request, deleteRequest);
     }
 
     @Override
     @DeleteMapping("/delete/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
     public ResponseEntity<MessageResponse> deleteSelectedUser(@PathVariable String userId) {
         return authControllerServices.deleteSelectedUser(Long.parseLong(userId));
     }
 
     @GetMapping("/test")
-    @PreAuthorize("hasRole('USER')")
+    @PreAuthorize("hasAuthority('ROLE_USER')")
     public void testController() {
     }
 

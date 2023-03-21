@@ -46,7 +46,6 @@ public interface AuthController {
      * @return a list of user info pojos
      */
     @GetMapping("/list")
-    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<List<UserInfoResponse>> getUsersList(HttpServletRequest request);
 
     /**
@@ -66,7 +65,6 @@ public interface AuthController {
      * @return the modified user or an error
      */
     @PutMapping("/update")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
     ResponseEntity<Map<String, Object>> updateUser(@Valid @RequestBody SignupRequest userDto, HttpServletRequest request);
 
     /**
@@ -77,7 +75,6 @@ public interface AuthController {
      * @return a message stating that if the update occured or not
      */
     @PutMapping("/update/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<MessageResponse> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser);
 
     /**
@@ -88,7 +85,6 @@ public interface AuthController {
      * @return a message stating that if the deletion occured or not
      */
     @DeleteMapping("/delete")
-    @PreAuthorize("hasRole('USER')")
     ResponseEntity<MessageResponse> deleteUser(HttpServletRequest request, DeleteRequestConfirmation deleteRequest);
 
     /**
@@ -98,6 +94,5 @@ public interface AuthController {
      * @return a message stating that if the deletion occured or not
      */
     @DeleteMapping("/delete/{userId}")
-    @PreAuthorize("hasRole('ADMIN')")
     ResponseEntity<MessageResponse> deleteSelectedUser(@PathVariable String userId);
 }
