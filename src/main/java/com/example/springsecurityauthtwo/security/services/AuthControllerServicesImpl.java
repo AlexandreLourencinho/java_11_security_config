@@ -6,26 +6,29 @@ import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Service;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.*;
 import java.util.stream.Collectors;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.http.HttpHeaders;
+import org.springframework.stereotype.Service;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 
 @Slf4j
 @AllArgsConstructor
@@ -148,9 +151,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
             List<UserInfoResponse> listInfoResponse = new ArrayList<>();
             listUser.forEach(user -> {
                 List<String> roles = new ArrayList<>();
-                user.getRoles().forEach(role -> {
-                    roles.add(role.getName().toString());
-                });
+                user.getRoles().forEach(role -> roles.add(role.getName().toString()));
                 UserInfoResponse info = new UserInfoResponse().setUsername(user.getUsername())
                         .setRoles(roles)
                         .setEmail(user.getEmail());
@@ -165,7 +166,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
     @Override
     public ResponseEntity<UserInfoResponse> getUser(HttpServletRequest request) {
         final String token = request.getHeader(SecurityConstants.HEADER_TOKEN).substring(SecurityConstants.BEARER_SUBSTRING);
-        final String  username = jwtUtils.getUsernameFromToken(token);
+        final String username = jwtUtils.getUsernameFromToken(token);
         AppUser user = userServices.findUserByUsername(username);
 
         if (Objects.isNull(user)) {
@@ -185,15 +186,31 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
     @Override
     public ResponseEntity<Map<String, Object>> updateUser(SignupRequest userDto, HttpServletRequest request) {
         Map<String, Object> responseBody = new HashMap<>();
+        UserUpdateError errors = new UserUpdateError();
         String username = jwtUtils.getUsernameFromToken(jwtUtils.getTokenFromHeaders(request));
+        Boolean isMailTaken = userServices.emailAlreadyExists(userDto.getEmail());
+        Boolean isUsernameTaken = userServices.usernameAlreadyExists(userDto.getUsername());
+
+        if (Boolean.TRUE.equals(isMailTaken)) {
+            errors.setUsernameTaken(SecurityConstants.ERROR_USERNAME_TAKEN);
+        }
+        if (Boolean.TRUE.equals(isUsernameTaken)) {
+            errors.setEmailTaken(SecurityConstants.ERROR_MAIL_TAKEN);
+        }
+        if (isUsernameTaken || isMailTaken) {
+            responseBody.put(SecurityConstants.ERROR, errors);
+            return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody);
+        }
+
         AppUser updatedUser = userServices.updateUserInfo(userDto, username);
+
         if (Objects.isNull(updatedUser)) {
             log.info("fail to update user");
             responseBody.put(SecurityConstants.ERROR, "Could not update user.");
 
-            return ResponseEntity.badRequest().body(responseBody);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
         } else {
-            if (!Objects.equals(username, userDto.getUsername())) {
+            if (!Objects.equals(username, updatedUser.getUsername())) {
                 String newToken = jwtUtils.generateJwtToken(userDto.getUsername());
                 responseBody.put("token", newToken);
             }
@@ -206,6 +223,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
     @Override
     public ResponseEntity<MessageResponse> updateSelectedUser(Long userId, SignupRequest updatedUser) {
         MessageResponse response = new MessageResponse();
+        //TODO même traitement que updateUser
         AppUser user = userServices.findById(userId);
 
         if (Objects.nonNull(user)) {
