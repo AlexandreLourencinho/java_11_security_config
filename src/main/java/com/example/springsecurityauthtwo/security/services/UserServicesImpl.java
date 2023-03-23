@@ -1,28 +1,32 @@
 package com.example.springsecurityauthtwo.security.services;
 
-import com.example.springsecurityauthtwo.security.exceptions.RoleNotFoundException;
-import com.example.springsecurityauthtwo.security.exceptions.UserNotFoundException;
-import com.example.springsecurityauthtwo.security.model.dtos.SignupRequest;
-import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
+import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
+import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
+import com.example.springsecurityauthtwo.security.model.dtos.SignupRequest;
 import com.example.springsecurityauthtwo.security.repositories.AppRoleRepository;
 import com.example.springsecurityauthtwo.security.repositories.AppUserRepository;
-import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
+import com.example.springsecurityauthtwo.security.exceptions.RoleNotFoundException;
+import com.example.springsecurityauthtwo.security.exceptions.UserNotFoundException;
 
 import java.util.*;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.security.crypto.password.PasswordEncoder;
+
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * The class UserServicesImpl which implements the interface UserServices.
- * @author  Alexandre
- * @version 1.0
- * @since   1.0
+ *
+ * @author Alexandre
+ * @version 1.1
+ * @since 1.0
  */
 @Slf4j
 @Service
@@ -32,10 +36,11 @@ public class UserServicesImpl implements UserServices {
 
     private final AppUserRepository userRepository;
     private final AppRoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
     public AppUser findUserByUsername(String username) {
-        log.info("retievring AppUser from his username...");
+        log.info("retrieving AppUser from his username...");
         return userRepository.findByUsername(username).orElse(null);
     }
 
@@ -114,7 +119,7 @@ public class UserServicesImpl implements UserServices {
                 .orElseThrow(() -> new UserNotFoundException("User", "username", username));
         Set<AppRole> enumRoles;
         log.warn("user : {}", user);
-        if(Objects.nonNull(user.getRoles())) {
+        if (Objects.nonNull(user.getRoles())) {
             enumRoles = user.getRoles().stream()
                     .map(role -> roleRepository.findByName(ERole.valueOf(role))
                             .orElseThrow(() -> new UserNotFoundException("Role", "name", role)))
@@ -123,11 +128,14 @@ public class UserServicesImpl implements UserServices {
             enumRoles = oldUser.getRoles();
         }
 
-
-        oldUser.setUsername(user.getUsername())
-                .setPassword(user.getPassword())
-                .setRoles(enumRoles)
-                .setEmail(user.getEmail());
+        if (!oldUser.getUsername().equals(user.getUsername()) && Boolean.FALSE.equals(usernameAlreadyExists(user.getUsername()))) {
+            oldUser.setUsername(user.getUsername());
+        }
+        if (!oldUser.getEmail().equals(user.getEmail()) && Boolean.FALSE.equals(emailAlreadyExists(user.getEmail()))) {
+            oldUser.setEmail(user.getEmail());
+        }
+        oldUser.setPassword(passwordEncoder.encode(user.getPassword()))
+                .setRoles(enumRoles);
         return userRepository.save(oldUser);
     }
 

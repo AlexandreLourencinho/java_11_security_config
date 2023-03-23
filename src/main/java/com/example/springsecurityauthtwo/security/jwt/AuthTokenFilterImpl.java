@@ -1,23 +1,30 @@
 package com.example.springsecurityauthtwo.security.jwt;
 
-import com.example.springsecurityauthtwo.security.exceptions.TokenException;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
-import io.jsonwebtoken.*;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
-import org.springframework.web.filter.OncePerRequestFilter;
+import com.example.springsecurityauthtwo.security.exceptions.TokenException;
 
+import java.util.Arrays;
+import java.io.IOException;
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
+
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.env.Environment;
+import org.springframework.web.filter.OncePerRequestFilter;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+
+import io.jsonwebtoken.*;
+import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import lombok.AllArgsConstructor;
+
 
 /**
  * @author Alexandre Lourencinho
@@ -25,10 +32,18 @@ import java.io.IOException;
  */
 @Slf4j
 @AllArgsConstructor
+@NoArgsConstructor
 public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTokenFilter {
 
     private JwtUtils jwtUtils;
     private UserDetailsService userDetailsService;
+    @Autowired
+    private Environment environment;
+
+    public AuthTokenFilterImpl(JwtUtils jwtUtils, UserDetailsService userDetailsService) {
+        this.jwtUtils = jwtUtils;
+        this.userDetailsService = userDetailsService;
+    }
 
     /**
      * internal filter for request management
@@ -42,16 +57,20 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String requestToken = request.getHeader(SecurityConstants.HEADER_TOKEN);
+        log.info("active profile : {}", Arrays.toString(environment.getActiveProfiles()));
+
 
         if (StringUtils.startsWith(requestToken, SecurityConstants.TOKEN_START)) {
             String jwt = requestToken.substring(SecurityConstants.BEARER_SUBSTRING);
 
             manageJwtAuthAndErrors(request, jwt);
 
-        } else if (!request.getServletPath().isBlank() && !request.getServletPath().contains(SecurityConstants.PUBLIC_URL)) {
+        } else if (!request.getServletPath().isBlank() && !request.getServletPath().contains(SecurityConstants.PUBLIC_URL) && !request.getServletPath().contains("swagger-ui")
+                && !request.getServletPath().contains("/v3/api-docs") && !request.getServletPath().contains(SecurityConstants.H2_CONSOLE_URL)) {
+            // TODO trouver moyen de gérer ça mieux que ça î
             log.warn("JWT token does not begin with Bearer String " + requestToken);
-            request.setAttribute(SecurityConstants.NOBEARER, SecurityConstants.NOBEARER_MESSAGE);
-            throw new TokenException(SecurityConstants.NOBEARER_MESSAGE);
+            request.setAttribute(SecurityConstants.NO_BEARER, SecurityConstants.NO_BEARER_MESSAGE);
+            throw new TokenException(SecurityConstants.NO_BEARER_MESSAGE);
         } else {
             request.setAttribute(SecurityConstants.UNAUTHORIZED, SecurityConstants.UNAUTHORIZED_MESSAGE);
         }
