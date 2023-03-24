@@ -27,6 +27,7 @@ public class AppRole {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     @Enumerated(EnumType.STRING)
+    @Column(unique = true)
     private ERole name;
     private String description;
 
