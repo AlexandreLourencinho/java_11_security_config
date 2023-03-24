@@ -1,0 +1,218 @@
+{
+	"info": {
+		"_postman_id": "e11641fe-4188-46ec-9358-b254090b41f1",
+		"name": "springsecurityauth",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "23711307"
+	},
+	"item": [
+		{
+			"name": "signup",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"aaa\",\r\n    \"email\":\"aaa@aaa\",\r\n    \"password\": \"1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/user/public/signup",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"public",
+						"signup"
+					]
+				},
+				"description": "sign up in the spsec auth"
+			},
+			"response": []
+		},
+		{
+			"name": "signing",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"\r",
+							"pm.environment.set(\"jwtToken\", postman.getResponseHeader(\"Authorization\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"aaa\",\r\n    \"password\": \"1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/user/public/signing",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"public",
+						"signing"
+					]
+				},
+				"description": "sign in and get bearer and refresh token \r\n"
+			},
+			"response": []
+		},
+		{
+			"name": "test",
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						},
+						{
+							"key": "header",
+							"value": "{}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{jwtToken}}",
+						"type": "text"
+					},
+					{
+						"key": "Refresh",
+						"value": "Refresh eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhYWEiLCJleHAiOjE2NzQyNDU3MzcsImlhdCI6MTY3NDI0NTczN30.SFASOtgdbK2ZMjJTw35oVbmuRN9Q72tX8S2Fzd3Xaban7ILnefDMmiJu9900z5CET-xRjhky6FMSo2z4iRb1xg",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{url}}/user/test",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"test"
+					],
+					"query": [
+						{
+							"key": "Authorization",
+							"value": "{{jwtToken}}",
+							"disabled": true
+						},
+						{
+							"key": "Refresh",
+							"value": "Refresh eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhYWEiLCJleHAiOjE2Nzg4OTE4NjAsImlhdCI6MTY3ODgwNTQ2MH0.x_WouGjjE-HCX0yTAoC7RiWWqqIfUhWD3KHv_QvN_fYmm1sdg6avVvbOVyTSQQz-avzQdpM9tlf7S79BB8tXfQ",
+							"disabled": true
+						}
+					]
+				},
+				"description": "test controller"
+			},
+			"response": []
+		},
+		{
+			"name": "update user",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{jwtToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"bbb\",\r\n    \"email\":\"bbb@bbb\",\r\n    \"password\": \"3456\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/user/update",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"update"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
