@@ -2,7 +2,6 @@ package com.example.springsecurityauthtwo.security.controllers;
 
 import com.example.springsecurityauthtwo.security.model.dtos.*;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,7 +18,7 @@ public interface AuthController {
      * @return users infos with access and refresh token
      */
     @PostMapping("/public/signup")
-    ResponseEntity<UserInfoResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest);
+    ResponseEntity<Map<String, Object>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest);
 
     /**
      * Write - Path allowing a user to create an account
@@ -75,7 +74,7 @@ public interface AuthController {
      * @return a message stating that if the update occured or not
      */
     @PutMapping("/update/{userId}")
-    ResponseEntity<MessageResponse> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser);
+    ResponseEntity<Map<String, Object>> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser);
 
     /**
      * write - delete own user's account

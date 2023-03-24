@@ -23,7 +23,7 @@ public interface AuthControllerServices {
      * @param loginRequest username and password for authentication
      * @return TODO to change ? intérêt de renvoyer les infos utilisateurs à ce moment là ?
      */
-    ResponseEntity<UserInfoResponse> authenticateUser(LoginRequest loginRequest);
+    ResponseEntity<Map<String,Object>> authenticateUser(LoginRequest loginRequest);
 
     /**
      * read - get a new jwt token using the refresh token
@@ -52,7 +52,7 @@ public interface AuthControllerServices {
     /**
      * write - update the current user, based on the jwt
      *
-     * @param userDto the updated informations of the user
+     * @param userDto the updated information of the user
      * @param request the http servlet request obejct
      * @return a confirmation message + a new jwt (with updated claims) or an error message
      */
@@ -65,7 +65,16 @@ public interface AuthControllerServices {
      * @param updatedUser the updated informations of the user
      * @return a confirmation or error message
      */
-    ResponseEntity<MessageResponse> updateSelectedUser(Long userId, SignupRequest updatedUser);
+    ResponseEntity<Map<String, Object>> updateSelectedUser(Long userId, SignupRequest updatedUser);
+
+    /**
+     *
+     * @param userDto
+     * @param responseBody
+     * @param errors
+     * @return
+     */
+    ResponseEntity<Map<String, Object>> getMapResponseEntity(SignupRequest userDto, Map<String, Object> responseBody, UserUpdateError errors);
 
     /**
      * write - delete the current user

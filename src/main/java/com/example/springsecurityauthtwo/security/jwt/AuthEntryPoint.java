@@ -41,8 +41,8 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
         final Map<String, Object> body = new HashMap<>();
         final ObjectMapper mapper = new ObjectMapper();
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-        Arrays.stream(SecurityConstants.getErrorList()).forEach(error -> {
 
+        Arrays.stream(SecurityConstants.getErrorList()).forEach(error -> {
             if(Objects.nonNull(request.getAttribute(error))) {
                 String errMessage = null;
                 body.put(SecurityConstants.STATUS, HttpServletResponse.SC_FORBIDDEN);

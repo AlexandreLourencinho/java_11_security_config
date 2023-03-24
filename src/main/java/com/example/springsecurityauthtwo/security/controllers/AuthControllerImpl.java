@@ -35,7 +35,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PostMapping("/public/signing")
-    public ResponseEntity<UserInfoResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, Object>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         return authControllerServices.authenticateUser(loginRequest);
     }
 
@@ -69,7 +69,7 @@ public class AuthControllerImpl implements AuthController {
     @Override
     @PutMapping("/update/{userId}")
     @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<MessageResponse> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser) {
+    public ResponseEntity<Map<String, Object>> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser) {
         return authControllerServices.updateSelectedUser(Long.parseLong(userId), updatedUser);
 
     }

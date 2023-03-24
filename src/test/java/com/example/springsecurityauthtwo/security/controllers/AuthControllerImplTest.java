@@ -130,7 +130,7 @@ class AuthControllerImplTest {
                 .andReturn();
         String response = result.getResponse().getContentAsString();
         Map<String, Object> responseBody = objectMapper.readValue(response, new TypeReference<>() {});
-        assertEquals("user test_user updated successfully", responseBody.get("message"));
+        assertEquals("user test_user updated successfully", responseBody.get("Success"));
         List<AppUser> listUser = userServices.findAll();
         assertTrue(listUser.stream().anyMatch(user -> Objects.equals(user.getUsername(), signupRequest.getUsername())));
     }

@@ -4,8 +4,9 @@ import com.example.springsecurityauthtwo.security.jwt.JwtUtils;
 import com.example.springsecurityauthtwo.security.model.dtos.*;
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
-import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
+import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
+import com.example.springsecurityauthtwo.security.model.mappers.AppUserMapper;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -86,13 +87,14 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
     }
 
     @Override
-    public ResponseEntity<UserInfoResponse> authenticateUser(LoginRequest loginRequest) {
+    public ResponseEntity<Map<String,Object>> authenticateUser(LoginRequest loginRequest) {
         // context and auth management
+        Map<String, Object> responseBody = new HashMap<>();
         log.info("User signing in...");
         Authentication auth = manager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(auth);
-        UserDetails userDetails = (UserDetailsImpl) auth.getPrincipal();
+        UserDetailsCustom userDetails = (UserDetailsImpl) auth.getPrincipal();
 
         // jwt generation
         Map<String, String> tokens = jwtUtils.generateTokenAndRefresh(userDetails.getUsername());
@@ -100,14 +102,15 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         headers.add(SecurityConstants.HEADER_TOKEN, SecurityConstants.TOKEN_START + tokens.get("token"));
         headers.add(SecurityConstants.REFRESH_TOKEN, SecurityConstants.TOKEN_START_REFRESH + tokens.get("refreshToken"));
         List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-
         // build and send response
         UserInfoResponse infoResponse = new UserInfoResponse()
                 .setUsername(userDetails.getUsername())
+                .setEmail(userDetails.getEmail())
                 .setRoles(roles);
+        responseBody.put("user", infoResponse);
         log.info("user signed in");
 
-        return new ResponseEntity<>(infoResponse, headers, HttpStatus.OK);
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).body(responseBody);
     }
 
     @Override
@@ -188,6 +191,60 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         Map<String, Object> responseBody = new HashMap<>();
         UserUpdateError errors = new UserUpdateError();
         String username = jwtUtils.getUsernameFromToken(jwtUtils.getTokenFromHeaders(request));
+
+        ResponseEntity<Map<String, Object>> isConflictResponse = getMapResponseEntity(userDto, responseBody, errors);
+        if (isConflictResponse != null) return isConflictResponse;
+
+        AppUser updatedUser = userServices.updateUserInfo(userDto, username);
+
+        if (Objects.isNull(updatedUser)) {
+            log.info("fail to update user");
+            responseBody.put(SecurityConstants.ERROR, "Could not update user.");
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+        } else {
+            String newToken = jwtUtils.generateJwtToken(userDto.getUsername());
+            UserInfoResponse returnedUser = AppUserMapper.INSTANCE.appUserToUserInfoResponse(updatedUser);
+            HttpHeaders headers = new HttpHeaders();
+            headers.set(SecurityConstants.HEADER_TOKEN, newToken);
+            responseBody.put("user", returnedUser);
+            log.info("user updated successfully");
+
+            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(responseBody);
+        }
+    }
+
+    @Override
+    public ResponseEntity<Map<String, Object>> updateSelectedUser(Long userId, SignupRequest updatedUser) {
+        Map<String, Object> responseBody = new HashMap<>();
+        UserUpdateError errors = new UserUpdateError();
+        ResponseEntity<Map<String, Object>> isConflictResponse = getMapResponseEntity(updatedUser, responseBody, errors);
+        if (isConflictResponse != null) return isConflictResponse;
+        AppUser user = userServices.findById(userId);
+
+        if (Objects.isNull(user)) {
+            responseBody.put(SecurityConstants.ERROR, "could not update user : user not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
+
+        } else {
+            String username = user.getUsername();
+            AppUser updatedUserReturn = userServices.updateUserInfo(updatedUser, username);
+
+            if (Objects.isNull(updatedUserReturn)) {
+                responseBody.put(SecurityConstants.ERROR, "something went wrong when updating the user: please contact an administrator.");
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
+
+            } else {
+                responseBody.put(SecurityConstants.SUCCESS, String.format("user %s updated successfully", username));
+                UserInfoResponse returnedUser = AppUserMapper.INSTANCE.appUserToUserInfoResponse(user);
+                log.warn("mapped return user : {}", returnedUser);
+                return ResponseEntity.status(HttpStatus.OK).body(responseBody);
+            }
+        }
+    }
+
+    @Override
+    public ResponseEntity<Map<String, Object>> getMapResponseEntity(SignupRequest userDto, Map<String, Object> responseBody, UserUpdateError errors) {
         Boolean isMailTaken = userServices.emailAlreadyExists(userDto.getEmail());
         Boolean isUsernameTaken = userServices.usernameAlreadyExists(userDto.getUsername());
 
@@ -201,46 +258,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
             responseBody.put(SecurityConstants.ERROR, errors);
             return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody);
         }
-
-        AppUser updatedUser = userServices.updateUserInfo(userDto, username);
-
-        if (Objects.isNull(updatedUser)) {
-            log.info("fail to update user");
-            responseBody.put(SecurityConstants.ERROR, "Could not update user.");
-
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
-        } else {
-            if (!Objects.equals(username, updatedUser.getUsername())) {
-                String newToken = jwtUtils.generateJwtToken(userDto.getUsername());
-                responseBody.put("token", newToken);
-            }
-            log.info("user updated successfully");
-
-            return ResponseEntity.ok(responseBody);
-        }
-    }
-
-    @Override
-    public ResponseEntity<MessageResponse> updateSelectedUser(Long userId, SignupRequest updatedUser) {
-        MessageResponse response = new MessageResponse();
-        //TODO même traitement que updateUser
-        AppUser user = userServices.findById(userId);
-
-        if (Objects.nonNull(user)) {
-            String username = user.getUsername();
-            AppUser updatedUserReturn = userServices.updateUserInfo(updatedUser, username);
-
-            if (Objects.nonNull(updatedUserReturn)) {
-                response.setMessage(String.format("user %s updated successfully", username));
-                return ResponseEntity.status(HttpStatus.OK).body(response);
-            } else {
-                response.setMessage("something went wrong when updating the user: please contact an administrator.");
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-            }
-        } else {
-            response.setMessage("could not update user : user not found");
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        }
+        return null;
     }
 
     @Override
