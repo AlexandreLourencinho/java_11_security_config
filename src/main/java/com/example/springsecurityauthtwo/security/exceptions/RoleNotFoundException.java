@@ -7,8 +7,8 @@ package com.example.springsecurityauthtwo.security.exceptions;
  */
 public class RoleNotFoundException extends RuntimeException {
 
-    public RoleNotFoundException(String message) {
-        super(message);
+    public RoleNotFoundException(String resourceName, String fieldName, Object fieldValue) {
+        super(String.format("%s not found with %s : '%s'", resourceName, fieldName, fieldValue));
     }
 
 }

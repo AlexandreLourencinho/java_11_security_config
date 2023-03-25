@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
 
+/**
+ * Simple POJO used for double check confirmation deletion request
+ */
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

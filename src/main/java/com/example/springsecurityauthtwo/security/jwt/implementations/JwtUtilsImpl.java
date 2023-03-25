@@ -1,23 +1,26 @@
-package com.example.springsecurityauthtwo.security.jwt;
+package com.example.springsecurityauthtwo.security.jwt.implementations;
 
+import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
+
+import java.util.*;
+import java.time.ZoneId;
+import java.time.LocalDateTime;
+import java.util.function.Function;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
+
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
-
-import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.function.Function;
 
 /**
- * Tools used for the JWT management
+ * the tools class for the jwt management
  *
- * @author Alexandre Lourencinho
- * @version 1.1
+ * @author Lourencinho Alexandre
+ * @version 1.1.0
  */
 @Slf4j
 @Component
@@ -95,7 +98,7 @@ public class JwtUtilsImpl implements JwtUtils {
     }
 
     @Override
-    public Boolean validateToken(String token, UserDetails user) {
+    public Boolean validateToken(String token, UserDetailsCustom user) {
         log.info("checking if token is still valid...");
         final String username = getUsernameFromToken(token);
         return username.equals(user.getUsername()) && !isTokenExpired(token);

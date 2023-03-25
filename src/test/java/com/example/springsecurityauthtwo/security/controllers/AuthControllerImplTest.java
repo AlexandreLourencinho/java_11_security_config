@@ -1,33 +1,36 @@
 package com.example.springsecurityauthtwo.security.controllers;
 
-import com.example.springsecurityauthtwo.security.model.dtos.LoginRequest;
-import com.example.springsecurityauthtwo.security.model.dtos.SignupRequest;
-import com.example.springsecurityauthtwo.security.model.entities.AppRole;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserServices;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
-import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
-import com.example.springsecurityauthtwo.security.services.AuthControllerServices;
-import com.example.springsecurityauthtwo.security.services.UserServices;
+import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import org.hibernate.Hibernate;
-import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.test.context.support.WithMockUser;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import com.example.springsecurityauthtwo.security.model.dtos.LoginRequest;
+import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
+import com.example.springsecurityauthtwo.security.model.dtos.SignupRequest;
 
 import java.util.*;
 
-import static org.junit.jupiter.api.Assertions.*;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.test.context.support.WithMockUser;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+
+import org.junit.jupiter.api.*;
+import org.hibernate.Hibernate;
+import org.junit.jupiter.api.extension.ExtendWith;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
+
+
+import static org.junit.jupiter.api.Assertions.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
@@ -85,7 +88,7 @@ class AuthControllerImplTest {
         Hibernate.initialize(user.getRoles());
         AppRole role = user.getRoles().iterator().next();
 
-        assertEquals(ERole.ROLE_USER.toString(), role.getName().toString());
+        assertEquals(ERole.ROLE_USER.getValue(), role.getName());
     }
 
     @Test
@@ -105,13 +108,14 @@ class AuthControllerImplTest {
         assertTrue(header.startsWith(SecurityConstants.TOKEN_START));
         String response = result.getResponse().getContentAsString();
         Map<String, Object> responseBody = objectMapper.readValue(response, new TypeReference<>() {});
-        assertEquals(this.username, responseBody.get("username"));
-        assertEquals("[ROLE_USER]", responseBody.get("roles").toString());
+        @SuppressWarnings("unchecked") LinkedHashMap<String, Object> responseUser = (LinkedHashMap<String, Object>) responseBody.get("user");
+        assertEquals(this.username, responseUser.get("username"));
+        assertEquals("[User]", responseUser.get("roles").toString());
     }
 
     @Test
     @Order(3)
-    @WithMockUser(username = "admin" , roles = {"ADMIN"})
+    @WithMockUser(username = "admin", authorities = {"Admin"})
     void testUpdateSelectedUser() throws Exception {
         Set<String> roles = new HashSet<>();
         roles.add("ROLE_USER");
@@ -121,16 +125,17 @@ class AuthControllerImplTest {
                 .setUsername(this.username + "1")
                 .setPassword(this.password + "1")
                 .setRoles(roles);
+        AppUser updatedUser = userServices.findUserByUsername(this.username);
         String requestBody = objectMapper.writeValueAsString(signupRequest);
 
-        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/user/update/1")
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.put("/user/update/" + updatedUser.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(requestBody))
                 .andExpect(status().isOk())
                 .andReturn();
         String response = result.getResponse().getContentAsString();
         Map<String, Object> responseBody = objectMapper.readValue(response, new TypeReference<>() {});
-        assertEquals("user test_user updated successfully", responseBody.get("message"));
+        assertEquals("user test_user updated successfully", responseBody.get("Success"));
         List<AppUser> listUser = userServices.findAll();
         assertTrue(listUser.stream().anyMatch(user -> Objects.equals(user.getUsername(), signupRequest.getUsername())));
     }

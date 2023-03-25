@@ -1,22 +1,25 @@
-package com.example.springsecurityauthtwo.security.controllers;
+package com.example.springsecurityauthtwo.security.controllers.implementations;
 
+import com.example.springsecurityauthtwo.security.controllers.interfaces.AuthController;
 import com.example.springsecurityauthtwo.security.model.dtos.*;
-import com.example.springsecurityauthtwo.security.services.AuthControllerServices;
+import com.example.springsecurityauthtwo.security.services.controllers.interfaces.AuthControllerServices;
+
+import java.util.*;
+import javax.validation.Valid;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.*;
 
 /**
- * Controller for the authentification, account creation, role management, etc
+ * Controller for the authentication, account creation, role management, etc
  *
  * @author Alexandre Lourencinho
- * @version 1.0
+ * @version 1.0.0
  */
 @RestController
 @AllArgsConstructor
@@ -35,7 +38,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PostMapping("/public/signing")
-    public ResponseEntity<UserInfoResponse> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, Object>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         return authControllerServices.authenticateUser(loginRequest);
     }
 
@@ -48,7 +51,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @GetMapping("/list")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('Admin')")
     public ResponseEntity<List<UserInfoResponse>> getUsersList(HttpServletRequest request) {
         return authControllerServices.getUsersList(request);
     }
@@ -61,22 +64,22 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PutMapping("/update")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PreAuthorize("hasAuthority('User')")
     public ResponseEntity<Map<String, Object>> updateUser(@Valid @RequestBody SignupRequest userDto, HttpServletRequest request) {
         return authControllerServices.updateUser(userDto, request);
     }
 
     @Override
     @PutMapping("/update/{userId}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
-    public ResponseEntity<MessageResponse> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser) {
+    @PreAuthorize("hasAuthority('Admin')")
+    public ResponseEntity<Map<String, Object>> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser) {
         return authControllerServices.updateSelectedUser(Long.parseLong(userId), updatedUser);
 
     }
 
     @Override
     @DeleteMapping("/delete")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PreAuthorize("hasAuthority('User')")
     public ResponseEntity<MessageResponse> deleteUser(HttpServletRequest request, DeleteRequestConfirmation deleteRequest) {
         return authControllerServices.deleteUser(request, deleteRequest);
     }
@@ -89,7 +92,7 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @GetMapping("/test")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PreAuthorize("hasAuthority('User')")
     public void testController() {
     }
 

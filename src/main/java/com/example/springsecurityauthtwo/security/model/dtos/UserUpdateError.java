@@ -5,6 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.experimental.Accessors;
 
+/**
+ * a simple POJO to organize the errors when username or mail is taken
+ */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

@@ -1,8 +1,9 @@
 package com.example.springsecurityauthtwo.security;
 
-import com.example.springsecurityauthtwo.security.jwt.JwtUtils;
+import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
 import com.example.springsecurityauthtwo.security.jwt.AuthEntryPoint;
-import com.example.springsecurityauthtwo.security.jwt.AuthTokenFilterImpl;
+import com.example.springsecurityauthtwo.security.jwt.implementations.AuthTokenFilterImpl;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsServicesCustom;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 
 import java.util.Arrays;
@@ -15,7 +16,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -37,17 +37,17 @@ import lombok.extern.slf4j.Slf4j;
 @Slf4j
 public class SecurityConfig {
 
-    private final UserDetailsService userDetailsService;
-    private final AuthEntryPoint unhauthorizedHandler;
+    private final UserDetailsServicesCustom userDetailsService;
+    private final AuthEntryPoint unauthorizedHandler;
     private final JwtUtils jwtUtils;
     @Value("${spring.profiles.active}")
     private String profile;
 
 
     @Autowired
-    public SecurityConfig(UserDetailsService userDetailsService, AuthEntryPoint unhauthorizedHandler, JwtUtils jwtUtils) {
+    public SecurityConfig(UserDetailsServicesCustom userDetailsService, AuthEntryPoint unauthorizedHandler, JwtUtils jwtUtils) {
         this.userDetailsService = userDetailsService;
-        this.unhauthorizedHandler = unhauthorizedHandler;
+        this.unauthorizedHandler = unauthorizedHandler;
         this.jwtUtils = jwtUtils;
     }
 
@@ -69,7 +69,7 @@ public class SecurityConfig {
     /**
      * Bean returning the authentication manager
      *
-     * @param authConfig AuthenficationConfiguration object
+     * @param authConfig AuthenticationConfiguration object
      * @return the authentication manager
      * @throws Exception if something went bad
      */
@@ -99,7 +99,7 @@ public class SecurityConfig {
     }
 
     /**
-     * The filter chain applied to the routes. Default permitted : signup, signin. h2 is present for dev purpose.
+     * The filter chain applied to the routes. Default permitted : signup, signing. h2 is present for dev purpose.
      * Defines the filters, the auth provider that will be used
      *
      * @param http the HttpSecurity object
@@ -115,7 +115,7 @@ public class SecurityConfig {
         }
 
         http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unhauthorizedHandler).and()
+                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
                 .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
                 .authorizeRequests()
                 .antMatchers("/actuator/**").hasRole("ACTUATOR")

@@ -1,13 +1,11 @@
-package com.example.springsecurityauthtwo.security.services;
+package com.example.springsecurityauthtwo.security.services.users.interfaces;
 
+import java.util.List;
+import java.util.Set;
 
 import com.example.springsecurityauthtwo.security.model.dtos.SignupRequest;
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
-import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Interface for users management methods
@@ -42,28 +40,12 @@ public interface UserServices {
     Boolean emailAlreadyExists(String email);
 
     /**
-     * The method used to retrieve an AppRole from his rolename
-     *
-     * @param rolename the rolename of the role
-     * @return the role
-     */
-    AppRole findRoleByRolename(ERole rolename);
-
-    /**
      * The method used to register a new user
      *
      * @param user the user to register
      * @return the registered user
      */
     AppUser saveNewUser(AppUser user);
-
-    /**
-     * The method used to manage the roles of a new user
-     *
-     * @param strRoles the roles in string format
-     * @param roles    the roles in AppRole format
-     */
-    void manageRoles(Set<String> strRoles, Set<AppRole> roles);
 
     /**
      * The method used to retrieve an AppUser from his id.
@@ -88,6 +70,13 @@ public interface UserServices {
      * @return the updated user
      */
     AppUser updateUserInfo(SignupRequest user, String username);
+
+    /**
+     *
+     * @param user the signup request POJO containing user's information (roles included)
+     * @return a set of AppRole with the user's role, or a set with the role User if none was provided
+     */
+    Set<AppRole> getAppRoles(SignupRequest user);
 
     /**
      * used to delete a user

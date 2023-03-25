@@ -1,24 +1,26 @@
 package com.example.springsecurityauthtwo.security.model.entities;
 
-import lombok.*;
-import lombok.experimental.Accessors;
-import org.hibernate.Hibernate;
-
-import javax.persistence.*;
+import java.util.Set;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
+import javax.persistence.*;
+
+import lombok.*;
+import org.hibernate.Hibernate;
+import lombok.experimental.Accessors;
 
 
 /**
  * User entity / model
+ *
  * @author Alexandre Lourencinho
  * @version 1.0
  */
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Accessors(chain = true)
 public class AppUser {
@@ -27,7 +29,9 @@ public class AppUser {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(unique = true)
     private String username;
+    @Column(unique = true)
     private String email;
     private String password;
     @ManyToMany(fetch = FetchType.EAGER)

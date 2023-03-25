@@ -1,9 +1,8 @@
-package com.example.springsecurityauthtwo.security.services;
+package com.example.springsecurityauthtwo.security.services.users.implementations;
 
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
-import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 import com.example.springsecurityauthtwo.security.model.dtos.SignupRequest;
 import com.example.springsecurityauthtwo.security.repositories.AppRoleRepository;
 import com.example.springsecurityauthtwo.security.repositories.AppUserRepository;
@@ -13,6 +12,7 @@ import com.example.springsecurityauthtwo.security.exceptions.UserNotFoundExcepti
 import java.util.*;
 import java.util.stream.Collectors;
 
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserServices;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -57,45 +57,9 @@ public class UserServicesImpl implements UserServices {
     }
 
     @Override
-    public AppRole findRoleByRolename(ERole rolename) {
-        log.info("retrieving the role...");
-        return roleRepository.findByName(rolename).orElse(null);
-    }
-
-    @Override
     public AppUser saveNewUser(AppUser user) {
         log.info("registering a new user...");
         return userRepository.save(user);
-    }
-
-    @Override
-    public void manageRoles(Set<String> strRoles, Set<AppRole> roles) {
-        log.info("managing new user's roles...");
-        strRoles.forEach(role -> {
-            switch (role) {
-                case "admin":
-                    AppRole adminRole = findRoleByRolename(ERole.ROLE_ADMIN);
-                    if (adminRole == null) {
-                        throw new RoleNotFoundException(SecurityConstants.ERROR_ROLE);
-                    }
-                    roles.add(adminRole);
-                    break;
-                case "mod":
-                    AppRole modRole = findRoleByRolename(ERole.ROLE_MODERATOR);
-                    if (modRole == null) {
-                        throw new RoleNotFoundException(SecurityConstants.ERROR_ROLE);
-                    }
-                    roles.add(modRole);
-                    break;
-                default:
-                    AppRole userRole = findRoleByRolename(ERole.ROLE_USER);
-                    if (userRole == null) {
-                        throw new RoleNotFoundException(SecurityConstants.ERROR_ROLE);
-                    }
-                    roles.add(userRole);
-                    break;
-            }
-        });
     }
 
     @Override
@@ -120,10 +84,7 @@ public class UserServicesImpl implements UserServices {
         Set<AppRole> enumRoles;
         log.warn("user : {}", user);
         if (Objects.nonNull(user.getRoles())) {
-            enumRoles = user.getRoles().stream()
-                    .map(role -> roleRepository.findByName(ERole.valueOf(role))
-                            .orElseThrow(() -> new UserNotFoundException("Role", "name", role)))
-                    .collect(Collectors.toSet());
+            enumRoles = getAppRoles(user);
         } else {
             enumRoles = oldUser.getRoles();
         }
@@ -137,6 +98,32 @@ public class UserServicesImpl implements UserServices {
         oldUser.setPassword(passwordEncoder.encode(user.getPassword()))
                 .setRoles(enumRoles);
         return userRepository.save(oldUser);
+    }
+
+    @Override
+    public Set<AppRole> getAppRoles(SignupRequest user) {
+        Set<AppRole> enumRoles;
+        if(Objects.isNull(user.getRoles())) {
+            enumRoles = new HashSet<>();
+            enumRoles.add(roleRepository.findByName(ERole.ROLE_USER.getValue()).orElse(null));
+        } else {
+            enumRoles = user.getRoles().stream()
+                    .map(role -> {
+                        ERole enumRole = ERole.fromString(role);
+                        if(Objects.nonNull(enumRole)) {
+                            return roleRepository.findByName(enumRole.getValue())
+                                    .orElseThrow(() -> new RoleNotFoundException("Role", "name", role));
+                        } else {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+            if(enumRoles.isEmpty()) {
+                enumRoles.add(roleRepository.findByName(ERole.ROLE_USER.getValue()).orElse(null));
+            }
+        }
+        return enumRoles;
     }
 
     @Override

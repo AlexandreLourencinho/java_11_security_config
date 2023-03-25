@@ -6,6 +6,7 @@ import lombok.experimental.Accessors;
 
 /**
  * Login request model object
+ *
  * @author Alexandre Lourencinho
  * @version 1.0
  */
