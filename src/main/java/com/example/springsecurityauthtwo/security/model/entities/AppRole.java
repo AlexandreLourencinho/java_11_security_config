@@ -1,7 +1,5 @@
 package com.example.springsecurityauthtwo.security.model.entities;
 
-import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
-
 import java.util.Objects;
 import javax.persistence.*;
 
@@ -26,9 +24,8 @@ public class AppRole {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Enumerated(EnumType.STRING)
     @Column(unique = true)
-    private ERole name;
+    private String name;
     private String description;
 
     @Override

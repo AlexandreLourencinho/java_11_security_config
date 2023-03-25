@@ -1,12 +1,16 @@
-package com.example.springsecurityauthtwo.security.services;
+package com.example.springsecurityauthtwo.security.services.controllers.implementations;
 
-import com.example.springsecurityauthtwo.security.jwt.JwtUtils;
+import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
 import com.example.springsecurityauthtwo.security.model.dtos.*;
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
-import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
 import com.example.springsecurityauthtwo.security.model.mappers.AppUserMapper;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserServices;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsServicesCustom;
+import com.example.springsecurityauthtwo.security.services.users.implementations.UserDetailsCustomImpl;
+import com.example.springsecurityauthtwo.security.services.controllers.interfaces.AuthControllerServices;
 
 import java.util.*;
 import javax.servlet.http.HttpServletRequest;
@@ -64,15 +68,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
                 .setPassword(passwordEncoder.encode(signupRequest.getPassword()));
 
         // check user's role
-        Set<String> strRoles = signupRequest.getRoles();
-        Set<AppRole> roles = new HashSet<>();
-
-        if (strRoles == null) {
-            AppRole userRoles = userServices.findRoleByRoleName(ERole.ROLE_USER);
-            roles.add(userRoles);
-        } else {
-            userServices.manageRoles(strRoles, roles); // TODO refaire managerole, pas bon
-        }
+        Set<AppRole> roles = userServices.getAppRoles(signupRequest);
 
         user.setRoles(roles);
         AppUser registeredUser = userServices.saveNewUser(user);
@@ -90,7 +86,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         Authentication auth = manager
                 .authenticate(new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
         SecurityContextHolder.getContext().setAuthentication(auth);
-        UserDetailsCustom userDetails = (UserDetailsImpl) auth.getPrincipal();
+        UserDetailsCustom userDetails = (UserDetailsCustomImpl) auth.getPrincipal();
 
         // jwt generation
         Map<String, String> tokens = jwtUtils.generateTokenAndRefresh(userDetails.getUsername());

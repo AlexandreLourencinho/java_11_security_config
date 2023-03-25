@@ -1,5 +1,7 @@
-package com.example.springsecurityauthtwo.security.jwt;
+package com.example.springsecurityauthtwo.security.jwt.implementations;
 
+import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 
 import java.util.*;
@@ -10,7 +12,6 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
@@ -97,7 +98,7 @@ public class JwtUtilsImpl implements JwtUtils {
     }
 
     @Override
-    public Boolean validateToken(String token, UserDetails user) {
+    public Boolean validateToken(String token, UserDetailsCustom user) {
         log.info("checking if token is still valid...");
         final String username = getUsernameFromToken(token);
         return username.equals(user.getUsername()) && !isTokenExpired(token);

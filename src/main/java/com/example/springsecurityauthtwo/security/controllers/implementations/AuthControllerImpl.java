@@ -1,7 +1,8 @@
-package com.example.springsecurityauthtwo.security.controllers;
+package com.example.springsecurityauthtwo.security.controllers.implementations;
 
+import com.example.springsecurityauthtwo.security.controllers.interfaces.AuthController;
 import com.example.springsecurityauthtwo.security.model.dtos.*;
-import com.example.springsecurityauthtwo.security.services.AuthControllerServices;
+import com.example.springsecurityauthtwo.security.services.controllers.interfaces.AuthControllerServices;
 
 import java.util.*;
 import javax.validation.Valid;
@@ -50,7 +51,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @GetMapping("/list")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('Admin')")
     public ResponseEntity<List<UserInfoResponse>> getUsersList(HttpServletRequest request) {
         return authControllerServices.getUsersList(request);
     }
@@ -63,14 +64,14 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @PutMapping("/update")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PreAuthorize("hasAuthority('User')")
     public ResponseEntity<Map<String, Object>> updateUser(@Valid @RequestBody SignupRequest userDto, HttpServletRequest request) {
         return authControllerServices.updateUser(userDto, request);
     }
 
     @Override
     @PutMapping("/update/{userId}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('Admin')")
     public ResponseEntity<Map<String, Object>> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser) {
         return authControllerServices.updateSelectedUser(Long.parseLong(userId), updatedUser);
 
@@ -78,7 +79,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @DeleteMapping("/delete")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PreAuthorize("hasAuthority('User')")
     public ResponseEntity<MessageResponse> deleteUser(HttpServletRequest request, DeleteRequestConfirmation deleteRequest) {
         return authControllerServices.deleteUser(request, deleteRequest);
     }
@@ -91,7 +92,7 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @GetMapping("/test")
-    @PreAuthorize("hasAuthority('ROLE_USER')")
+    @PreAuthorize("hasAuthority('User')")
     public void testController() {
     }
 

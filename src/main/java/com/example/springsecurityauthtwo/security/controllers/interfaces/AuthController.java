@@ -1,4 +1,4 @@
-package com.example.springsecurityauthtwo.security.controllers;
+package com.example.springsecurityauthtwo.security.controllers.interfaces;
 
 import com.example.springsecurityauthtwo.security.model.dtos.*;
 

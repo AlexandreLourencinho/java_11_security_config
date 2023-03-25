@@ -2,12 +2,14 @@ package com.example.springsecurityauthtwo.security.jwt;
 
 import java.util.Date;
 import java.util.ArrayList;
+
+import com.example.springsecurityauthtwo.security.jwt.implementations.JwtUtilsImpl;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
+import com.example.springsecurityauthtwo.security.services.users.implementations.UserDetailsCustomImpl;
 import org.junit.jupiter.api.Test;
 
-import org.springframework.security.core.userdetails.User;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -44,7 +46,7 @@ class JwtUtilsImplTest {
     @Test
     void testValidateToken() {
         String token = jwtUtils.generateJwtToken(USERNAME);
-        UserDetails userDetails = new User(USERNAME, "", new ArrayList<>()); // TODO: Trouver une solution pour ça et le user custom ?
+        UserDetailsCustom userDetails = new UserDetailsCustomImpl(Long.parseLong("99"), USERNAME, "", new ArrayList<>(), "") {};
         Boolean valid = jwtUtils.validateToken(token, userDetails);
         assertTrue(valid);
     }

@@ -1,4 +1,4 @@
-package com.example.springsecurityauthtwo.security.services;
+package com.example.springsecurityauthtwo.security.services.controllers.interfaces;
 
 import com.example.springsecurityauthtwo.security.model.dtos.*;
 import org.springframework.http.ResponseEntity;

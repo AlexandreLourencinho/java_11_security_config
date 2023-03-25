@@ -1,9 +1,9 @@
 package com.example.springsecurityauthtwo.security;
 
-import com.example.springsecurityauthtwo.security.jwt.JwtUtils;
+import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
 import com.example.springsecurityauthtwo.security.jwt.AuthEntryPoint;
-import com.example.springsecurityauthtwo.security.jwt.AuthTokenFilterImpl;
-import com.example.springsecurityauthtwo.security.services.UserDetailsServicesCustom;
+import com.example.springsecurityauthtwo.security.jwt.implementations.AuthTokenFilterImpl;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsServicesCustom;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 
 import java.util.Arrays;

@@ -1,7 +1,7 @@
-package com.example.springsecurityauthtwo.security.jwt;
+package com.example.springsecurityauthtwo.security.jwt.interfaces;
 
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
 import io.jsonwebtoken.Claims;
-import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Date;
@@ -66,7 +66,7 @@ public interface JwtUtils {
      * @param user the user associated with
      * @return true false or null
      */
-    Boolean validateToken(String token, UserDetails user);
+    Boolean validateToken(String token, UserDetailsCustom user);
 
     /**
      * Get the given jwt token from the headers

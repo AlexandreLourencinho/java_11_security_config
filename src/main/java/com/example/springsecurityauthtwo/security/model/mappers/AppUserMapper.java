@@ -2,7 +2,7 @@ package com.example.springsecurityauthtwo.security.model.mappers;
 
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
-import com.example.springsecurityauthtwo.security.services.UserDetailsCustom;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
 import com.example.springsecurityauthtwo.security.model.dtos.UserInfoResponse;
 
 import java.util.Set;
@@ -41,7 +41,7 @@ public interface AppUserMapper {
     default List<String> customRoleMapper(Set<AppRole> roles) {
         List<String> listRoles = new ArrayList<>();
         roles.forEach(role -> {
-            String roleName = role.getName().toString();
+            String roleName = role.getName();
             listRoles.add(roleName);
         });
         return listRoles;

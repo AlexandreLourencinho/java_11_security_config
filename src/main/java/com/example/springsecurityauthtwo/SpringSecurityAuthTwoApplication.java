@@ -25,9 +25,6 @@ import lombok.extern.slf4j.Slf4j;
 @AllArgsConstructor
 public class SpringSecurityAuthTwoApplication {
 
-
-//    private AppRoleRepository roleRepository;
-
     public static void main(String[] args) {
         SpringApplication.run(SpringSecurityAuthTwoApplication.class, args);
     }
@@ -36,14 +33,14 @@ public class SpringSecurityAuthTwoApplication {
     public CommandLineRunner demo(AppRoleRepository roleRepository, AppUserRepository userRepository, PasswordEncoder passwordEncoder) {
         return (args -> {
             log.warn("bean launched");
-            ERole[] eRolesAr = {ERole.ROLE_ADMIN, ERole.ROLE_USER, ERole.ROLE_MODERATOR, ERole.ROLE_ACTUATOR};
-            List<ERole> listRoles = new ArrayList<>(List.of(eRolesAr));
+            String[] eRolesAr = {ERole.ROLE_ADMIN.getValue(), ERole.ROLE_USER.getValue(), ERole.ROLE_MODERATOR.getValue(), ERole.ROLE_ACTUATOR.getValue()};
+            List<String> listRoles = new ArrayList<>(List.of(eRolesAr));
             listRoles.forEach(role -> {
                 AppRole rol = new AppRole().setName(role);
                 roleRepository.save(rol);
             });
             Set<AppRole> setRoles = new HashSet<>();
-            AppRole role = roleRepository.findByName(ERole.ROLE_ADMIN).orElse(null);
+            AppRole role = roleRepository.findByName(ERole.ROLE_ADMIN.getValue()).orElse(null);
             setRoles.add(role);
             AppUser admin = new AppUser().setUsername("admin")
                     .setEmail("admin@admin")

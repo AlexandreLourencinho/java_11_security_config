@@ -1,6 +1,6 @@
 package com.example.springsecurityauthtwo.security.controllers;
 
-import com.example.springsecurityauthtwo.security.services.UserServices;
+import com.example.springsecurityauthtwo.security.services.users.interfaces.UserServices;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
@@ -88,7 +88,7 @@ class AuthControllerImplTest {
         Hibernate.initialize(user.getRoles());
         AppRole role = user.getRoles().iterator().next();
 
-        assertEquals(ERole.ROLE_USER.toString(), role.getName().toString());
+        assertEquals(ERole.ROLE_USER.getValue(), role.getName());
     }
 
     @Test
@@ -110,12 +110,12 @@ class AuthControllerImplTest {
         Map<String, Object> responseBody = objectMapper.readValue(response, new TypeReference<>() {});
         @SuppressWarnings("unchecked") LinkedHashMap<String, Object> responseUser = (LinkedHashMap<String, Object>) responseBody.get("user");
         assertEquals(this.username, responseUser.get("username"));
-        assertEquals("[ROLE_USER]", responseUser.get("roles").toString());
+        assertEquals("[User]", responseUser.get("roles").toString());
     }
 
     @Test
     @Order(3)
-    @WithMockUser(username = "admin", roles = {"ADMIN"})
+    @WithMockUser(username = "admin", authorities = {"Admin"})
     void testUpdateSelectedUser() throws Exception {
         Set<String> roles = new HashSet<>();
         roles.add("ROLE_USER");

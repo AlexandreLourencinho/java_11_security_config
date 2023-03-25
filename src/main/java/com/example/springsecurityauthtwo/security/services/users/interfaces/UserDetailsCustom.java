@@ -1,4 +1,4 @@
-package com.example.springsecurityauthtwo.security.services;
+package com.example.springsecurityauthtwo.security.services.users.interfaces;
 
 import org.springframework.security.core.userdetails.UserDetails;
 
