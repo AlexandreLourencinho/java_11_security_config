@@ -1,24 +1,26 @@
 package com.example.springsecurityauthtwo.security.model.entities;
 
-import javax.persistence.*;
+import java.util.Set;
 import java.util.HashSet;
 import java.util.Objects;
-import java.util.Set;
+import javax.persistence.*;
 
 import lombok.*;
-import lombok.experimental.Accessors;
 import org.hibernate.Hibernate;
+import lombok.experimental.Accessors;
 
 
 /**
  * User entity / model
+ *
  * @author Alexandre Lourencinho
  * @version 1.0
  */
 @Getter
 @Setter
 @ToString
-@AllArgsConstructor @NoArgsConstructor
+@AllArgsConstructor
+@NoArgsConstructor
 @Entity
 @Accessors(chain = true)
 public class AppUser {

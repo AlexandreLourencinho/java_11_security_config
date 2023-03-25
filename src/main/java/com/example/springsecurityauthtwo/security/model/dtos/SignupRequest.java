@@ -1,9 +1,9 @@
 package com.example.springsecurityauthtwo.security.model.dtos;
 
+import java.util.Set;
+
 import lombok.Data;
 import lombok.experimental.Accessors;
-
-import java.util.Set;
 
 /**
  * Contains username, email, passsword and roles (usually empty array)

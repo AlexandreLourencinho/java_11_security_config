@@ -8,6 +8,12 @@ import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * the tools class for the jwt management
+ *
+ * @author Lourencinho Alexandre
+ * @version 1.1.0
+ */
 public interface JwtUtils {
 
     /**

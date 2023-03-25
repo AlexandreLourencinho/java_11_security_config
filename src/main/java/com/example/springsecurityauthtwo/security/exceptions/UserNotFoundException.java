@@ -2,6 +2,7 @@ package com.example.springsecurityauthtwo.security.exceptions;
 
 /**
  * Exception for user not found
+ *
  * @author Alexandre Lourencinho
  * @version 1.0
  */

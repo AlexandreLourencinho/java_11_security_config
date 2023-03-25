@@ -1,5 +1,7 @@
 package com.example.springsecurityauthtwo.security.jwt;
 
+import com.example.springsecurityauthtwo.security.services.UserDetailsCustom;
+import com.example.springsecurityauthtwo.security.services.UserDetailsServicesCustom;
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 import com.example.springsecurityauthtwo.security.exceptions.TokenException;
 
@@ -14,9 +16,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.env.Environment;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 
@@ -36,11 +36,11 @@ import lombok.AllArgsConstructor;
 public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTokenFilter {
 
     private JwtUtils jwtUtils;
-    private UserDetailsService userDetailsService;
+    private UserDetailsServicesCustom userDetailsService;
     @Autowired
     private Environment environment;
 
-    public AuthTokenFilterImpl(JwtUtils jwtUtils, UserDetailsService userDetailsService) {
+    public AuthTokenFilterImpl(JwtUtils jwtUtils, UserDetailsServicesCustom userDetailsService) {
         this.jwtUtils = jwtUtils;
         this.userDetailsService = userDetailsService;
     }
@@ -84,7 +84,7 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
 
         if (StringUtils.isNotEmpty(username) &&
                 null == SecurityContextHolder.getContext().getAuthentication()) {
-            UserDetails user = userDetailsService.loadUserByUsername(username);
+            UserDetailsCustom user = userDetailsService.loadUserByUsername(username);
 
             if (Boolean.TRUE.equals(jwtUtils.validateToken(jwt, user))) {
                 UsernamePasswordAuthenticationToken auth = new UsernamePasswordAuthenticationToken(user, "", user.getAuthorities());

@@ -1,23 +1,25 @@
 package com.example.springsecurityauthtwo.security.jwt;
 
 import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
-import io.jsonwebtoken.*;
-import lombok.extern.slf4j.Slf4j;
+
+import java.util.*;
+import java.time.ZoneId;
+import java.time.LocalDateTime;
+import java.util.function.Function;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Component;
 
-import javax.servlet.http.HttpServletRequest;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.util.*;
-import java.util.function.Function;
+import io.jsonwebtoken.*;
+import lombok.extern.slf4j.Slf4j;
 
 /**
- * Tools used for the JWT management
+ * the tools class for the jwt management
  *
- * @author Alexandre Lourencinho
- * @version 1.1
+ * @author Lourencinho Alexandre
+ * @version 1.1.0
  */
 @Slf4j
 @Component

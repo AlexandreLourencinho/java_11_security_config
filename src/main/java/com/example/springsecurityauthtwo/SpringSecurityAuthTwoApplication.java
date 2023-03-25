@@ -1,37 +1,55 @@
 package com.example.springsecurityauthtwo;
 
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
+import com.example.springsecurityauthtwo.security.model.entities.AppUser;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
 import com.example.springsecurityauthtwo.security.repositories.AppRoleRepository;
-import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
+import com.example.springsecurityauthtwo.security.repositories.AppUserRepository;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Bean;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @SpringBootApplication
 @Slf4j
 @AllArgsConstructor
-public class SpringSecurityAuthTwoApplication implements CommandLineRunner {
+public class SpringSecurityAuthTwoApplication {
 
 
-    private AppRoleRepository roleRepository;
+//    private AppRoleRepository roleRepository;
 
     public static void main(String[] args) {
         SpringApplication.run(SpringSecurityAuthTwoApplication.class, args);
     }
 
-    @Override
-    public void run(String... args) {
-        ERole[] eRolesAr = {ERole.ROLE_ADMIN, ERole.ROLE_USER, ERole.ROLE_MODERATOR, ERole.ROLE_ACTUATOR};
-        List<ERole> listRoles = new ArrayList<>(List.of(eRolesAr));
-        listRoles.forEach(role -> {
-            AppRole rol = new AppRole().setName(role);
-            roleRepository.save(rol);
+    @Bean
+    public CommandLineRunner demo(AppRoleRepository roleRepository, AppUserRepository userRepository, PasswordEncoder passwordEncoder) {
+        return (args -> {
+            log.warn("bean launched");
+            ERole[] eRolesAr = {ERole.ROLE_ADMIN, ERole.ROLE_USER, ERole.ROLE_MODERATOR, ERole.ROLE_ACTUATOR};
+            List<ERole> listRoles = new ArrayList<>(List.of(eRolesAr));
+            listRoles.forEach(role -> {
+                AppRole rol = new AppRole().setName(role);
+                roleRepository.save(rol);
+            });
+            Set<AppRole> setRoles = new HashSet<>();
+            AppRole role = roleRepository.findByName(ERole.ROLE_ADMIN).orElse(null);
+            setRoles.add(role);
+            AppUser admin = new AppUser().setUsername("admin")
+                    .setEmail("admin@admin")
+                    .setPassword(passwordEncoder.encode("1234"))
+                    .setRoles(setRoles);
+            userRepository.save(admin);
         });
     }
 }

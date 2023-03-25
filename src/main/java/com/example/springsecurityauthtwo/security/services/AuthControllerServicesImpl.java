@@ -9,7 +9,6 @@ import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
 import com.example.springsecurityauthtwo.security.model.mappers.AppUserMapper;
 
 import java.util.*;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.http.MediaType;
@@ -19,11 +18,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 
@@ -40,7 +36,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
     private UserServices userServices;
     private AuthenticationManager manager;
     private PasswordEncoder passwordEncoder;
-    private UserDetailsService userDetailsService;
+    private UserDetailsServicesCustom userDetailsService;
 
     @Override
     public ResponseEntity<Map<String, Object>> registerUser(SignupRequest signupRequest) {
@@ -72,22 +68,22 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         Set<AppRole> roles = new HashSet<>();
 
         if (strRoles == null) {
-            AppRole userRoles = userServices.findRoleByRolename(ERole.ROLE_USER);
+            AppRole userRoles = userServices.findRoleByRoleName(ERole.ROLE_USER);
             roles.add(userRoles);
         } else {
-            userServices.manageRoles(strRoles, roles);
+            userServices.manageRoles(strRoles, roles); // TODO refaire managerole, pas bon
         }
 
         user.setRoles(roles);
-        userServices.saveNewUser(user);
+        AppUser registeredUser = userServices.saveNewUser(user);
         log.info("user registered successfully!");
-        responseBody.put(SecurityConstants.SUCCESS, String.format("User %s registered successfully", user.getUsername()));
+        responseBody.put(SecurityConstants.SUCCESS, String.format("User %s registered successfully", registeredUser.getUsername()));
 
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
     }
 
     @Override
-    public ResponseEntity<Map<String,Object>> authenticateUser(LoginRequest loginRequest) {
+    public ResponseEntity<Map<String, Object>> authenticateUser(LoginRequest loginRequest) {
         // context and auth management
         Map<String, Object> responseBody = new HashMap<>();
         log.info("User signing in...");
@@ -101,13 +97,8 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         HttpHeaders headers = new HttpHeaders();
         headers.add(SecurityConstants.HEADER_TOKEN, SecurityConstants.TOKEN_START + tokens.get("token"));
         headers.add(SecurityConstants.REFRESH_TOKEN, SecurityConstants.TOKEN_START_REFRESH + tokens.get("refreshToken"));
-        List<String> roles = userDetails.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList());
-        // build and send response
-        UserInfoResponse infoResponse = new UserInfoResponse()
-                .setUsername(userDetails.getUsername())
-                .setEmail(userDetails.getEmail())
-                .setRoles(roles);
-        responseBody.put("user", infoResponse);
+        UserInfoResponse resp = AppUserMapper.INSTANCE.userDetailsToUserInfoResponse(userDetails);
+        responseBody.put("user", resp);
         log.info("user signed in");
 
         return ResponseEntity.status(HttpStatus.OK).headers(headers).body(responseBody);
@@ -127,7 +118,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         try {
 
             String username = jwtUtils.getUsernameFromToken(refreshToken);
-            UserDetails user = userDetailsService.loadUserByUsername(username);
+            UserDetailsCustom user = userDetailsService.loadUserByUsername(username);
 
             if (Boolean.FALSE.equals(jwtUtils.validateToken(refreshToken, user))) {
                 responseBody.put(SecurityConstants.ERROR, SecurityConstants.INVALID_REFRESH);
@@ -148,17 +139,14 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
     public ResponseEntity<List<UserInfoResponse>> getUsersList(HttpServletRequest request) {
         List<AppUser> listUser = userServices.findAll();
 
+
         if (listUser.isEmpty()) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } else {
             List<UserInfoResponse> listInfoResponse = new ArrayList<>();
             listUser.forEach(user -> {
-                List<String> roles = new ArrayList<>();
-                user.getRoles().forEach(role -> roles.add(role.getName().toString()));
-                UserInfoResponse info = new UserInfoResponse().setUsername(user.getUsername())
-                        .setRoles(roles)
-                        .setEmail(user.getEmail());
-                listInfoResponse.add(info);
+                UserInfoResponse returnedUser = AppUserMapper.INSTANCE.appUserToUserInfoResponse(user);
+                listInfoResponse.add(returnedUser);
             });
 
             return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(listInfoResponse);
@@ -175,14 +163,9 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         if (Objects.isNull(user)) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).build();
         } else {
-            List<String> roles = new ArrayList<>();
-            user.getRoles().forEach(role -> roles.add(role.getName().toString()));
-            UserInfoResponse userInfo = new UserInfoResponse()
-                    .setUsername(user.getUsername())
-                    .setEmail(user.getEmail())
-                    .setRoles(roles);
+            UserInfoResponse returnedUser = AppUserMapper.INSTANCE.appUserToUserInfoResponse(user);
 
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(userInfo);
+            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(returnedUser);
         }
     }
 
@@ -192,7 +175,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         UserUpdateError errors = new UserUpdateError();
         String username = jwtUtils.getUsernameFromToken(jwtUtils.getTokenFromHeaders(request));
 
-        ResponseEntity<Map<String, Object>> isConflictResponse = getMapResponseEntity(userDto, responseBody, errors);
+        ResponseEntity<Map<String, Object>> isConflictResponse = checkAlreadyTakenErrors(userDto, responseBody, errors);
         if (isConflictResponse != null) return isConflictResponse;
 
         AppUser updatedUser = userServices.updateUserInfo(userDto, username);
@@ -218,8 +201,10 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
     public ResponseEntity<Map<String, Object>> updateSelectedUser(Long userId, SignupRequest updatedUser) {
         Map<String, Object> responseBody = new HashMap<>();
         UserUpdateError errors = new UserUpdateError();
-        ResponseEntity<Map<String, Object>> isConflictResponse = getMapResponseEntity(updatedUser, responseBody, errors);
+
+        ResponseEntity<Map<String, Object>> isConflictResponse = checkAlreadyTakenErrors(updatedUser, responseBody, errors);
         if (isConflictResponse != null) return isConflictResponse;
+
         AppUser user = userServices.findById(userId);
 
         if (Objects.isNull(user)) {
@@ -244,7 +229,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
     }
 
     @Override
-    public ResponseEntity<Map<String, Object>> getMapResponseEntity(SignupRequest userDto, Map<String, Object> responseBody, UserUpdateError errors) {
+    public ResponseEntity<Map<String, Object>> checkAlreadyTakenErrors(SignupRequest userDto, Map<String, Object> responseBody, UserUpdateError errors) {
         Boolean isMailTaken = userServices.emailAlreadyExists(userDto.getEmail());
         Boolean isUsernameTaken = userServices.usernameAlreadyExists(userDto.getUsername());
 

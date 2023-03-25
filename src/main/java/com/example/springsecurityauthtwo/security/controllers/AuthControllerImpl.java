@@ -2,21 +2,23 @@ package com.example.springsecurityauthtwo.security.controllers;
 
 import com.example.springsecurityauthtwo.security.model.dtos.*;
 import com.example.springsecurityauthtwo.security.services.AuthControllerServices;
+
+import java.util.*;
+import javax.validation.Valid;
+import javax.servlet.http.HttpServletRequest;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.security.access.prepost.PreAuthorize;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.*;
 
 /**
- * Controller for the authentification, account creation, role management, etc
+ * Controller for the authentication, account creation, role management, etc
  *
  * @author Alexandre Lourencinho
- * @version 1.0
+ * @version 1.0.0
  */
 @RestController
 @AllArgsConstructor

@@ -1,12 +1,11 @@
 package com.example.springsecurityauthtwo.security.model.dtos;
 
+import java.util.List;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.experimental.Accessors;
-
-import java.util.List;
-
 
 /**
  * User info that will be sent after a successful login request

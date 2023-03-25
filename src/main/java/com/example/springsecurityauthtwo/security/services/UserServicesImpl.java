@@ -3,7 +3,6 @@ package com.example.springsecurityauthtwo.security.services;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
-import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 import com.example.springsecurityauthtwo.security.model.dtos.SignupRequest;
 import com.example.springsecurityauthtwo.security.repositories.AppRoleRepository;
 import com.example.springsecurityauthtwo.security.repositories.AppUserRepository;
@@ -57,9 +56,9 @@ public class UserServicesImpl implements UserServices {
     }
 
     @Override
-    public AppRole findRoleByRolename(ERole rolename) {
+    public AppRole findRoleByRoleName(ERole roleName) {
         log.info("retrieving the role...");
-        return roleRepository.findByName(rolename).orElse(null);
+        return roleRepository.findByName(roleName).orElse(null);
     }
 
     @Override
@@ -74,23 +73,23 @@ public class UserServicesImpl implements UserServices {
         strRoles.forEach(role -> {
             switch (role) {
                 case "admin":
-                    AppRole adminRole = findRoleByRolename(ERole.ROLE_ADMIN);
+                    AppRole adminRole = findRoleByRoleName(ERole.ROLE_ADMIN);
                     if (adminRole == null) {
-                        throw new RoleNotFoundException(SecurityConstants.ERROR_ROLE);
+                        throw new RoleNotFoundException("Role", "name", role);
                     }
                     roles.add(adminRole);
                     break;
                 case "mod":
-                    AppRole modRole = findRoleByRolename(ERole.ROLE_MODERATOR);
+                    AppRole modRole = findRoleByRoleName(ERole.ROLE_MODERATOR);
                     if (modRole == null) {
-                        throw new RoleNotFoundException(SecurityConstants.ERROR_ROLE);
+                        throw new RoleNotFoundException("Role", "name", role);
                     }
                     roles.add(modRole);
                     break;
                 default:
-                    AppRole userRole = findRoleByRolename(ERole.ROLE_USER);
+                    AppRole userRole = findRoleByRoleName(ERole.ROLE_USER);
                     if (userRole == null) {
-                        throw new RoleNotFoundException(SecurityConstants.ERROR_ROLE);
+                        throw new RoleNotFoundException("Role", "name", role);
                     }
                     roles.add(userRole);
                     break;
@@ -122,7 +121,7 @@ public class UserServicesImpl implements UserServices {
         if (Objects.nonNull(user.getRoles())) {
             enumRoles = user.getRoles().stream()
                     .map(role -> roleRepository.findByName(ERole.valueOf(role))
-                            .orElseThrow(() -> new UserNotFoundException("Role", "name", role)))
+                            .orElseThrow(() -> new RoleNotFoundException("Role", "name", role)))
                     .collect(Collectors.toSet());
         } else {
             enumRoles = oldUser.getRoles();

@@ -1,14 +1,21 @@
 package com.example.springsecurityauthtwo.security.controllers;
 
 import com.example.springsecurityauthtwo.security.model.dtos.*;
+
+import java.util.Map;
+import java.util.List;
+import javax.validation.Valid;
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.validation.Valid;
-import java.util.List;
-import java.util.Map;
-
+/**
+ * The controller for the user management paths
+ *
+ * @author Lourencinho Alexandre
+ * @version 1.0.0
+ */
 public interface AuthController {
 
     /**
@@ -42,13 +49,13 @@ public interface AuthController {
      * read - get a list of all users
      *
      * @param request the http servlet request object
-     * @return a list of user info pojos
+     * @return a list of user info POJOs
      */
     @GetMapping("/list")
     ResponseEntity<List<UserInfoResponse>> getUsersList(HttpServletRequest request);
 
     /**
-     * read - get one user informations
+     * read - get one user information
      *
      * @param request the http servlet request object
      * @return a user info response pojo
@@ -71,7 +78,7 @@ public interface AuthController {
      *
      * @param userId      the Long user id
      * @param updatedUser the updated information request
-     * @return a message stating that if the update occured or not
+     * @return a message stating that if the update occurred or not
      */
     @PutMapping("/update/{userId}")
     ResponseEntity<Map<String, Object>> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser);
@@ -81,16 +88,16 @@ public interface AuthController {
      *
      * @param request       the http servlet request object
      * @param deleteRequest a double check confirmation for the delete request
-     * @return a message stating that if the deletion occured or not
+     * @return a message stating that if the deletion occurred or not
      */
     @DeleteMapping("/delete")
     ResponseEntity<MessageResponse> deleteUser(HttpServletRequest request, DeleteRequestConfirmation deleteRequest);
 
     /**
-     * write - delete an user account from an admin
+     * write - delete a user account from an admin
      *
      * @param userId the Long user id
-     * @return a message stating that if the deletion occured or not
+     * @return a message stating that if the deletion occurred or not
      */
     @DeleteMapping("/delete/{userId}")
     ResponseEntity<MessageResponse> deleteSelectedUser(@PathVariable String userId);

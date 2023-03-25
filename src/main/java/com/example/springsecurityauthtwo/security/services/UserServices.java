@@ -1,13 +1,12 @@
 package com.example.springsecurityauthtwo.security.services;
 
+import java.util.List;
+import java.util.Set;
 
 import com.example.springsecurityauthtwo.security.model.dtos.SignupRequest;
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
 import com.example.springsecurityauthtwo.security.model.enumeration.ERole;
-
-import java.util.List;
-import java.util.Set;
 
 /**
  * Interface for users management methods
@@ -42,12 +41,12 @@ public interface UserServices {
     Boolean emailAlreadyExists(String email);
 
     /**
-     * The method used to retrieve an AppRole from his rolename
+     * The method used to retrieve an AppRole from his role name
      *
-     * @param rolename the rolename of the role
+     * @param roleName the role name of the role
      * @return the role
      */
-    AppRole findRoleByRolename(ERole rolename);
+    AppRole findRoleByRoleName(ERole roleName);
 
     /**
      * The method used to register a new user

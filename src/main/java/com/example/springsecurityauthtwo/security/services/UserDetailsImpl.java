@@ -1,19 +1,22 @@
 package com.example.springsecurityauthtwo.security.services;
 
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import lombok.Data;
+import lombok.AllArgsConstructor;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 
 /**
  * an implementation of the UserDetails interface
+ *
  * @author Alexandre Lourencinho
  * @version 1.0
  */
@@ -32,8 +35,9 @@ public class UserDetailsImpl implements UserDetailsCustom {
 
     /**
      * Build method to build that class from a user
+     *
      * @param user the AppUser object
-     * @return instanciation of the implementation
+     * @return instantiation of the implementation
      */
     public static UserDetailsImpl build(AppUser user) {
         List<GrantedAuthority> authorities = user.getRoles().stream().map(role -> new SimpleGrantedAuthority(role.getName().name())).collect(Collectors.toList());
