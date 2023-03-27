@@ -23,7 +23,7 @@ public class SecurityConstants {
     public static final String PUBLIC_URL = "/public/";
 
     /* url matching for permitAll() */
-    public static final String PATTERN_PUBLIC_URL = "/user/public/**";
+    public static final String PATTERN_PUBLIC_URL = "/**/public/**";
 
     /* dev-specific URL */
     public static final String V2_API_DOCS_URL = "/v2/api-docs";
@@ -49,6 +49,7 @@ public class SecurityConstants {
     public static final String SIGNATURE = "SignatureError";
     public static final String UNSUPPORTED = "UnsupportedError";
     public static final String NO_BEARER = "NoBearerError";
+    public static final String INTERNAL_SERVER_ERROR = "InternalError";
 
     /* Entities error*/
     public static final String ERROR_ROLE = "Error: role not found. ";
@@ -69,6 +70,7 @@ public class SecurityConstants {
     public static final String UNSUPPORTED_MESSAGE = UNSUPPORTED + " - The jwt is in an unsupported format. ";
     public static final String NO_BEARER_MESSAGE = NO_BEARER + " - string doesn't start with Bearer. ";
     public static final String UNAUTHORIZED_MESSAGE = UNAUTHORIZED + " - We don't know what happened but something went wrong";
+    public static final String INTERNAL_SERVER_ERROR_MESSAGE = INTERNAL_SERVER_ERROR + " - an internal error occured in the server : please contact an administrator";
 
 
     /* tokens strings */
@@ -90,20 +92,20 @@ public class SecurityConstants {
     /* * --- constants arrays --- * */
     // errors list
     private static final String[] ERRORS_LIST = {EXPIRED, CLAIMS_INVALID, MALFORMED, INCORRECT_TOKEN_FORMAT, SIGNATURE,
-            UNSUPPORTED, NO_BEARER};
+            UNSUPPORTED, NO_BEARER, INTERNAL_SERVER_ERROR};
 
     // error messages list
     private static final String[] ERRORS_MESSAGE_LIST = {EXPIRED_ERROR_MESSAGE, CLAIMS_INVALID_MESSAGE,
             INVALID_TOKEN_MESSAGE, MALFORMED_JWT_MESSAGE, INCORRECT_TOKEN_FORMAT_MESSAGE, SIGNATURE_MESSAGE,
-            UNSUPPORTED_MESSAGE, NO_BEARER_MESSAGE};
+            UNSUPPORTED_MESSAGE, NO_BEARER_MESSAGE, INTERNAL_SERVER_ERROR_MESSAGE};
 
     // dev pattern url authorization
     private static final String[] AUTHORIZED_PATTERN_ARRAY_DEV = {PATTERN_PUBLIC_URL, V2_API_DOCS_URL,
             SWAGGER_RESOURCES_URL, SWAGGER_RESOURCES_PATTERN_URL, CONFIGURATION_UI_URL, CONFIGURATION_SECURITY_URL,
-            SWAGGER_UI_HTML_URL, WEBJARS_URL, V3_API_DOCS_URL, SWAGGER_UI_PATTERN_URL, H2_CONSOLE_PATTERN_URL};
+            SWAGGER_UI_HTML_URL, WEBJARS_URL, V3_API_DOCS_URL, SWAGGER_UI_PATTERN_URL, H2_CONSOLE_PATTERN_URL, PUBLIC_URL};
 
     // prod pattern url authorization
-    private static final String[] AUTHORIZED_PATTERN_ARRAY = {PATTERN_PUBLIC_URL};
+    private static final String[] AUTHORIZED_PATTERN_ARRAY = {PATTERN_PUBLIC_URL, PUBLIC_URL};
 
     public static String[] getErrorList() {
         return ERRORS_LIST;

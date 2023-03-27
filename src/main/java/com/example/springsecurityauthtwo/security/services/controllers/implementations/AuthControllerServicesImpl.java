@@ -111,24 +111,18 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(responseBody);
         }
 
-        try {
+        String username = jwtUtils.getUsernameFromToken(refreshToken);
+        UserDetailsCustom user = userDetailsService.loadUserByUsername(username);
 
-            String username = jwtUtils.getUsernameFromToken(refreshToken);
-            UserDetailsCustom user = userDetailsService.loadUserByUsername(username);
-
-            if (Boolean.FALSE.equals(jwtUtils.validateToken(refreshToken, user))) {
-                responseBody.put(SecurityConstants.ERROR, SecurityConstants.INVALID_REFRESH);
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(responseBody);
-            }
-
-            String newAccessToken = jwtUtils.generateJwtToken(username);
-            responseBody.put("newToken", SecurityConstants.TOKEN_START + newAccessToken);
-            return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
-
-        } catch (Exception e) {
+        if (Boolean.FALSE.equals(jwtUtils.validateToken(refreshToken, user))) {
             responseBody.put(SecurityConstants.ERROR, SecurityConstants.INVALID_REFRESH);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(responseBody);
         }
+
+        String newAccessToken = jwtUtils.generateJwtToken(username);
+        HttpHeaders headers = new HttpHeaders();
+        headers.set(SecurityConstants.HEADER_TOKEN, newAccessToken);
+        return ResponseEntity.status(HttpStatus.OK).headers(headers).contentType(MediaType.APPLICATION_JSON).body(responseBody);
     }
 
     @Override

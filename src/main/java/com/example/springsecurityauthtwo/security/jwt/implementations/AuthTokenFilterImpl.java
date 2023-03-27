@@ -15,9 +15,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.env.Environment;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.filter.OncePerRequestFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
@@ -39,8 +38,8 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
 
     private JwtUtils jwtUtils;
     private UserDetailsServicesCustom userDetailsService;
-    @Autowired
-    private Environment environment;
+    @Value("${spring.profiles.active}")
+    private String profile;
 
     public AuthTokenFilterImpl(JwtUtils jwtUtils, UserDetailsServicesCustom userDetailsService) {
         this.jwtUtils = jwtUtils;
@@ -59,17 +58,13 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         final String requestToken = request.getHeader(SecurityConstants.HEADER_TOKEN);
-        log.info("active profile : {}", Arrays.toString(environment.getActiveProfiles()));
-
 
         if (StringUtils.startsWith(requestToken, SecurityConstants.TOKEN_START)) {
             String jwt = requestToken.substring(SecurityConstants.BEARER_SUBSTRING);
 
             manageJwtAuthAndErrors(request, jwt);
 
-        } else if (!request.getServletPath().isBlank() && !request.getServletPath().contains(SecurityConstants.PUBLIC_URL) && !request.getServletPath().contains("swagger-ui")
-                && !request.getServletPath().contains("/v3/api-docs") && !request.getServletPath().contains(SecurityConstants.H2_CONSOLE_URL)) {
-            // TODO trouver moyen de gérer ça mieux que ça î
+        } else if (!request.getServletPath().isBlank() && !Boolean.TRUE.equals(this.manageAccessURL(request.getServletPath()))) {
             log.warn("JWT token does not begin with Bearer String " + requestToken);
             request.setAttribute(SecurityConstants.NO_BEARER, SecurityConstants.NO_BEARER_MESSAGE);
             throw new TokenException(SecurityConstants.NO_BEARER_MESSAGE);
@@ -138,7 +133,14 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
 
         } catch (Exception e) {
             log.error("catch exception e ");
+            request.setAttribute(SecurityConstants.INTERNAL_SERVER_ERROR, SecurityConstants.INTERNAL_SERVER_ERROR_MESSAGE);
+            throw new TokenException(SecurityConstants.INTERNAL_SERVER_ERROR_MESSAGE + e.getMessage());
         }
     }
+
+    public Boolean manageAccessURL(String servletPath) {
+        return Arrays.stream(SecurityConstants.getAuthorizedUrl(profile.equals(SecurityConstants.DEV_ENV))).anyMatch(servletPath::contains);
+    }
+
 
 }
