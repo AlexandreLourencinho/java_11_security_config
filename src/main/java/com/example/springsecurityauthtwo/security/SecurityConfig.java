@@ -108,9 +108,9 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        Boolean profileDev = profile.equals(SecurityConstants.DEV_ENV);
-        String[] matchingUrlPermitAll = SecurityConstants.getAuthorizedUrl(profileDev);
-        if (Boolean.TRUE.equals(profileDev)) {
+        Boolean isProfileDevOrTest = SecurityConstants.isDevOrTestEnv(profile);
+        String[] matchingUrlPermitAll = SecurityConstants.getAuthorizedUrlPattern(isProfileDevOrTest);
+        if (Boolean.TRUE.equals(isProfileDevOrTest)) {
             log.info("authorized URL : {}", Arrays.toString(matchingUrlPermitAll));
         }
 

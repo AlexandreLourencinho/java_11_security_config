@@ -1,5 +1,6 @@
 package com.example.springsecurityauthtwo.security.model.dtos;
 
+import java.util.HashSet;
 import java.util.Set;
 
 import lombok.Data;
@@ -19,6 +20,6 @@ public class SignupRequest {
     private String username;
     private String email;
     private String password;
-    private Set<String> roles;
+    private Set<String> roles = new HashSet<>();
 
 }

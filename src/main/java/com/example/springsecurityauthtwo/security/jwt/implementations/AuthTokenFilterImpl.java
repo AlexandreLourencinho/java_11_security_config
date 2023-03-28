@@ -64,12 +64,14 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
 
             manageJwtAuthAndErrors(request, jwt);
 
-        } else if (!request.getServletPath().isBlank() && !Boolean.TRUE.equals(this.manageAccessURL(request.getServletPath()))) {
+        } else if (Boolean.TRUE.equals(this.manageAccessURL(request.getServletPath()))
+                || Boolean.TRUE.equals(request.getServletPath().isBlank() && SecurityConstants.isDevOrTestEnv(profile))) {
+            filterChain.doFilter(request, response);
+            return;
+        } else {
             log.warn("JWT token does not begin with Bearer String " + requestToken);
             request.setAttribute(SecurityConstants.NO_BEARER, SecurityConstants.NO_BEARER_MESSAGE);
             throw new TokenException(SecurityConstants.NO_BEARER_MESSAGE);
-        } else {
-            request.setAttribute(SecurityConstants.UNAUTHORIZED, SecurityConstants.UNAUTHORIZED_MESSAGE);
         }
         filterChain.doFilter(request, response);
     }
@@ -139,7 +141,7 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
     }
 
     public Boolean manageAccessURL(String servletPath) {
-        return Arrays.stream(SecurityConstants.getAuthorizedUrl(profile.equals(SecurityConstants.DEV_ENV))).anyMatch(servletPath::contains);
+        return Arrays.stream(SecurityConstants.getAuthorizedUrl(SecurityConstants.isDevOrTestEnv(profile))).anyMatch(servletPath::contains);
     }
 
 
