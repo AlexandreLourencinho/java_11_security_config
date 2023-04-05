@@ -2,13 +2,15 @@ package com.example.springsecurityauthtwo.security.services.users.implementation
 
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
 import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.Data;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import lombok.Data;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 @Data
 public class UserDetailsCustomImpl implements UserDetailsCustom {

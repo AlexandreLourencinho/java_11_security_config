@@ -1,8 +1,9 @@
 package com.example.springsecurityauthtwo.security.jwt.implementations;
 
 import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
+import static com.example.springsecurityauthtwo.security.tools.constants.TokenConstants.*;
+
 import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
-import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
 
 import java.util.*;
 import java.time.ZoneId;
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Value;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+
 
 /**
  * the tools class for the jwt management
@@ -106,12 +108,12 @@ public class JwtUtilsImpl implements JwtUtils {
 
     @Override
     public String getTokenFromHeaders(HttpServletRequest request) {
-        return request.getHeader(SecurityConstants.HEADER_TOKEN).substring(SecurityConstants.BEARER_SUBSTRING);
+        return request.getHeader(HEADER_TOKEN).substring(BEARER_SUBSTRING);
     }
 
     @Override
     public String getRefreshTokenFromHeaders(HttpServletRequest request) {
-        return request.getHeader(SecurityConstants.REFRESH_TOKEN).substring(SecurityConstants.REFRESH_SUBSTRING);
+        return request.getHeader(REFRESH_TOKEN).substring(REFRESH_SUBSTRING);
     }
 
     /**

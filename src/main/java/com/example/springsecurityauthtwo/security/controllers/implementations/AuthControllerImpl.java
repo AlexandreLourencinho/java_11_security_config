@@ -86,7 +86,7 @@ public class AuthControllerImpl implements AuthController {
 
     @Override
     @DeleteMapping("/delete/{userId}")
-    @PreAuthorize("hasAuthority('ROLE_ADMIN')")
+    @PreAuthorize("hasAuthority('Admin')")
     public ResponseEntity<MessageResponse> deleteSelectedUser(@PathVariable String userId) {
         return authControllerServices.deleteSelectedUser(Long.parseLong(userId));
     }

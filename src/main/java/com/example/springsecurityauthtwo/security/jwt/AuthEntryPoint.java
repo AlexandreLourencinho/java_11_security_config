@@ -1,6 +1,7 @@
 package com.example.springsecurityauthtwo.security.jwt;
 
-import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
+import static com.example.springsecurityauthtwo.security.tools.constants.ErrorConstants.*;
+import static com.example.springsecurityauthtwo.security.tools.constants.TokenConstants.*;
 
 import java.util.Map;
 import java.util.Arrays;
@@ -46,22 +47,25 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
         final ObjectMapper mapper = new ObjectMapper();
         response.setContentType(MediaType.APPLICATION_JSON_VALUE);
 
-        Arrays.stream(SecurityConstants.getErrorList()).forEach(error -> {
+        Arrays.stream(getErrorList()).forEach(error -> {
             if (Objects.nonNull(request.getAttribute(error))) {
                 String errMessage = null;
-                body.put(SecurityConstants.STATUS, HttpServletResponse.SC_FORBIDDEN);
-                body.put(SecurityConstants.ERROR, error);
-                for (String errorMessage : SecurityConstants.getErrorsMessageList()) {
+                body.put(STATUS, HttpServletResponse.SC_FORBIDDEN);
+                body.put(ERROR, error);
+                for (String errorMessage : getErrorsMessageList()) {
                     if (errorMessage.startsWith(error)) {
                         errMessage = errorMessage;
                         break;
                     }
                 }
-                body.put(SecurityConstants.MESSAGE, errMessage);
+                body.put(MESSAGE, errMessage);
             }
         });
-
-        body.put(SecurityConstants.PATH, request.getServletPath());
+        if(Objects.isNull(body.get(ERROR))) {
+            body.put(ERROR, ERROR);
+            body.put(MESSAGE, UNSUPPORTED_MESSAGE);
+        }
+        body.put(PATH, request.getServletPath());
         mapper.writeValue(response.getOutputStream(), body);
 
     }

@@ -1,10 +1,14 @@
 package com.example.springsecurityauthtwo.security;
 
-import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
 import com.example.springsecurityauthtwo.security.jwt.AuthEntryPoint;
+import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
 import com.example.springsecurityauthtwo.security.jwt.implementations.AuthTokenFilterImpl;
+
+import static com.example.springsecurityauthtwo.security.tools.utils.ConstantsUtils.isDevOrTestEnv;
 import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsServicesCustom;
-import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
+import static com.example.springsecurityauthtwo.security.tools.constants.DevAndLogConstants.DEV_FILTER_CHAIN_LOG;
+import static com.example.springsecurityauthtwo.security.tools.utils.ConstantsUtils.utilsGetAuthorizedUrlPattern;
+import static com.example.springsecurityauthtwo.security.tools.constants.DevAndLogConstants.PROD_FILTER_CHAIN_LOG;
 
 import java.util.Arrays;
 
@@ -24,6 +28,7 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import lombok.extern.slf4j.Slf4j;
+
 
 
 /**
@@ -108,19 +113,26 @@ public class SecurityConfig {
      */
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
-        Boolean isProfileDevOrTest = SecurityConstants.isDevOrTestEnv(profile);
-        String[] matchingUrlPermitAll = SecurityConstants.getAuthorizedUrlPattern(isProfileDevOrTest);
+        Boolean isProfileDevOrTest = isDevOrTestEnv(profile);
+        String[] matchingUrlPermitAll = utilsGetAuthorizedUrlPattern(isProfileDevOrTest);
         if (Boolean.TRUE.equals(isProfileDevOrTest)) {
             log.info("authorized URL : {}", Arrays.toString(matchingUrlPermitAll));
         }
 
         http.cors().and().csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS).and()
-                .authorizeRequests()
-                .antMatchers("/actuator/**").hasRole("ACTUATOR")
-                .antMatchers(matchingUrlPermitAll).permitAll()
-                .anyRequest().authenticated();
+                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        if (Boolean.TRUE.equals(isProfileDevOrTest)) {
+            log.info(DEV_FILTER_CHAIN_LOG);
+            http.authorizeRequests().antMatchers(matchingUrlPermitAll).permitAll()
+                    .anyRequest().authenticated();
+        } else {
+            log.info(PROD_FILTER_CHAIN_LOG);
+            http.authorizeRequests()
+                    .antMatchers("/actuator/**").hasRole("ACTUATOR")
+                    .antMatchers(matchingUrlPermitAll).permitAll()
+                    .anyRequest().authenticated();
+        }
         http.headers().frameOptions().sameOrigin();
         http.authenticationProvider(authProvider());
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);

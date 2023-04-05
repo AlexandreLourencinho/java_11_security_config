@@ -1,11 +1,13 @@
 package com.example.springsecurityauthtwo.security.services.controllers.implementations;
 
-import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
 import com.example.springsecurityauthtwo.security.model.dtos.*;
 import com.example.springsecurityauthtwo.security.model.entities.AppRole;
 import com.example.springsecurityauthtwo.security.model.entities.AppUser;
-import com.example.springsecurityauthtwo.security.tools.SecurityConstants;
+import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
 import com.example.springsecurityauthtwo.security.model.mappers.AppUserMapper;
+import static com.example.springsecurityauthtwo.security.tools.constants.ErrorConstants.*;
+import static com.example.springsecurityauthtwo.security.tools.constants.TokenConstants.*;
+
 import com.example.springsecurityauthtwo.security.services.users.interfaces.UserServices;
 import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
 import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsServicesCustom;
@@ -50,15 +52,15 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
 
         // check if username already taken
         if (Boolean.TRUE.equals(userServices.usernameAlreadyExists(signupRequest.getUsername()))) {
-            log.warn(SecurityConstants.ERROR_USERNAME_TAKEN);
-            responseBody.put(SecurityConstants.ERROR, SecurityConstants.ERROR_USERNAME_TAKEN);
+            log.warn(ERROR_USERNAME_TAKEN);
+            responseBody.put(ERROR, ERROR_USERNAME_TAKEN);
             return ResponseEntity.status(HttpStatus.CONFLICT).contentType(MediaType.APPLICATION_JSON).body(responseBody);
         }
 
         // check if email already taken
         if (Boolean.TRUE.equals(userServices.emailAlreadyExists(signupRequest.getEmail()))) {
-            log.warn(SecurityConstants.ERROR_MAIL_TAKEN);
-            responseBody.put(SecurityConstants.ERROR, SecurityConstants.ERROR_MAIL_TAKEN);
+            log.warn(ERROR_MAIL_TAKEN);
+            responseBody.put(ERROR, ERROR_MAIL_TAKEN);
             return ResponseEntity.status(HttpStatus.CONFLICT).contentType(MediaType.APPLICATION_JSON).body(responseBody);
         }
 
@@ -73,7 +75,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         user.setRoles(roles);
         AppUser registeredUser = userServices.saveNewUser(user);
         log.info("user registered successfully!");
-        responseBody.put(SecurityConstants.SUCCESS, String.format("User %s registered successfully", registeredUser.getUsername()));
+        responseBody.put(SUCCESS, String.format("User %s registered successfully", registeredUser.getUsername()));
 
         return ResponseEntity.status(HttpStatus.OK).contentType(MediaType.APPLICATION_JSON).body(responseBody);
     }
@@ -91,8 +93,8 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         // jwt generation
         Map<String, String> tokens = jwtUtils.generateTokenAndRefresh(userDetails.getUsername());
         HttpHeaders headers = new HttpHeaders();
-        headers.add(SecurityConstants.HEADER_TOKEN, SecurityConstants.TOKEN_START + tokens.get("token"));
-        headers.add(SecurityConstants.REFRESH_TOKEN, SecurityConstants.TOKEN_START_REFRESH + tokens.get("refreshToken"));
+        headers.add(HEADER_TOKEN, TOKEN_START + tokens.get("token"));
+        headers.add(REFRESH_TOKEN, TOKEN_START_REFRESH + tokens.get("refreshToken"));
         UserInfoResponse resp = AppUserMapper.INSTANCE.userDetailsToUserInfoResponse(userDetails);
         responseBody.put("user", resp);
         log.info("user signed in");
@@ -107,7 +109,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         String refreshToken = jwtUtils.getRefreshTokenFromHeaders(request);
 
         if (StringUtils.isEmpty(refreshToken)) {
-            responseBody.put(SecurityConstants.ERROR, "no refresh token provided");
+            responseBody.put(ERROR, "no refresh token provided");
             return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(responseBody);
         }
 
@@ -115,13 +117,13 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         UserDetailsCustom user = userDetailsService.loadUserByUsername(username);
 
         if (Boolean.FALSE.equals(jwtUtils.validateToken(refreshToken, user))) {
-            responseBody.put(SecurityConstants.ERROR, SecurityConstants.INVALID_REFRESH);
+            responseBody.put(ERROR, INVALID_REFRESH);
             return ResponseEntity.status(HttpStatus.FORBIDDEN).contentType(MediaType.APPLICATION_JSON).body(responseBody);
         }
 
         String newAccessToken = jwtUtils.generateJwtToken(username);
         HttpHeaders headers = new HttpHeaders();
-        headers.set(SecurityConstants.HEADER_TOKEN, newAccessToken);
+        headers.set(HEADER_TOKEN, newAccessToken);
         return ResponseEntity.status(HttpStatus.OK).headers(headers).contentType(MediaType.APPLICATION_JSON).body(responseBody);
     }
 
@@ -146,7 +148,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
 
     @Override
     public ResponseEntity<UserInfoResponse> getUser(HttpServletRequest request) {
-        final String token = request.getHeader(SecurityConstants.HEADER_TOKEN).substring(SecurityConstants.BEARER_SUBSTRING);
+        final String token = request.getHeader(HEADER_TOKEN).substring(BEARER_SUBSTRING);
         final String username = jwtUtils.getUsernameFromToken(token);
         AppUser user = userServices.findUserByUsername(username);
 
@@ -172,14 +174,14 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
 
         if (Objects.isNull(updatedUser)) {
             log.info("fail to update user");
-            responseBody.put(SecurityConstants.ERROR, "Could not update user.");
+            responseBody.put(ERROR, "Could not update user.");
 
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
         } else {
             String newToken = jwtUtils.generateJwtToken(userDto.getUsername());
             UserInfoResponse returnedUser = AppUserMapper.INSTANCE.appUserToUserInfoResponse(updatedUser);
             HttpHeaders headers = new HttpHeaders();
-            headers.set(SecurityConstants.HEADER_TOKEN, newToken);
+            headers.set(HEADER_TOKEN, newToken);
             responseBody.put("user", returnedUser);
             log.info("user updated successfully");
 
@@ -198,7 +200,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         AppUser user = userServices.findById(userId);
 
         if (Objects.isNull(user)) {
-            responseBody.put(SecurityConstants.ERROR, "could not update user : user not found");
+            responseBody.put(ERROR, "could not update user : user not found");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(responseBody);
 
         } else {
@@ -206,11 +208,11 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
             AppUser updatedUserReturn = userServices.updateUserInfo(updatedUser, username);
 
             if (Objects.isNull(updatedUserReturn)) {
-                responseBody.put(SecurityConstants.ERROR, "something went wrong when updating the user: please contact an administrator.");
+                responseBody.put(ERROR, "something went wrong when updating the user: please contact an administrator.");
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
 
             } else {
-                responseBody.put(SecurityConstants.SUCCESS, String.format("user %s updated successfully", username));
+                responseBody.put(SUCCESS, String.format("user %s updated successfully", username));
                 UserInfoResponse returnedUser = AppUserMapper.INSTANCE.appUserToUserInfoResponse(user);
                 log.warn("mapped return user : {}", returnedUser);
                 return ResponseEntity.status(HttpStatus.OK).body(responseBody);
@@ -224,13 +226,13 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         Boolean isUsernameTaken = userServices.usernameAlreadyExists(userDto.getUsername());
 
         if (Boolean.TRUE.equals(isMailTaken)) {
-            errors.setUsernameTaken(SecurityConstants.ERROR_USERNAME_TAKEN);
+            errors.setUsernameTaken(ERROR_USERNAME_TAKEN);
         }
         if (Boolean.TRUE.equals(isUsernameTaken)) {
-            errors.setEmailTaken(SecurityConstants.ERROR_MAIL_TAKEN);
+            errors.setEmailTaken(ERROR_MAIL_TAKEN);
         }
         if (isUsernameTaken || isMailTaken) {
-            responseBody.put(SecurityConstants.ERROR, errors);
+            responseBody.put(ERROR, errors);
             return ResponseEntity.status(HttpStatus.CONFLICT).body(responseBody);
         }
         return null;
@@ -260,8 +262,8 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
         AppUser user = userServices.findById(userId);
 
         if (Objects.isNull(user)) {
-            response.setMessage(SecurityConstants.USER_NOT_FOUND);
-            log.error(SecurityConstants.USER_NOT_FOUND);
+            response.setMessage(USER_NOT_FOUND);
+            log.error(USER_NOT_FOUND);
 
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } else {
