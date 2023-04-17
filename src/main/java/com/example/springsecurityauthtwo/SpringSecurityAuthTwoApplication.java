@@ -33,20 +33,26 @@ public class SpringSecurityAuthTwoApplication {
     public CommandLineRunner demo(AppRoleRepository roleRepository, AppUserRepository userRepository, PasswordEncoder passwordEncoder) {
         return (args -> {
             log.warn("bean launched");
-            String[] eRolesAr = {ERole.ROLE_ADMIN.getValue(), ERole.ROLE_USER.getValue(), ERole.ROLE_MODERATOR.getValue(), ERole.ROLE_ACTUATOR.getValue()};
-            List<String> listRoles = new ArrayList<>(List.of(eRolesAr));
-            listRoles.forEach(role -> {
-                AppRole rol = new AppRole().setName(role);
-                roleRepository.save(rol);
-            });
-            Set<AppRole> setRoles = new HashSet<>();
-            AppRole role = roleRepository.findByName(ERole.ROLE_ADMIN.getValue()).orElse(null);
-            setRoles.add(role);
-            AppUser admin = new AppUser().setUsername("admin")
-                    .setEmail("admin@admin")
-                    .setPassword(passwordEncoder.encode("1234"))
-                    .setRoles(setRoles);
-            userRepository.save(admin);
+            var test = roleRepository.findAll();
+            if(!test.iterator().hasNext()) {
+                String[] eRolesAr = {ERole.ROLE_ADMIN.getValue(), ERole.ROLE_USER.getValue(), ERole.ROLE_MODERATOR.getValue(), ERole.ROLE_ACTUATOR.getValue()};
+                List<String> listRoles = new ArrayList<>(List.of(eRolesAr));
+                listRoles.forEach(role -> {
+                    AppRole rol = new AppRole().setName(role);
+                    roleRepository.save(rol);
+                });
+            }
+            var testu = userRepository.findAll();
+            if(!testu.iterator().hasNext()) {
+                Set<AppRole> setRoles = new HashSet<>();
+                AppRole role = roleRepository.findByName(ERole.ROLE_ADMIN.getValue()).orElse(null);
+                setRoles.add(role);
+                AppUser admin = new AppUser().setUsername("admin")
+                        .setEmail("admin@admin")
+                        .setPassword(passwordEncoder.encode("1234"))
+                        .setRoles(setRoles);
+                userRepository.save(admin);
+            }
         });
     }
 }
