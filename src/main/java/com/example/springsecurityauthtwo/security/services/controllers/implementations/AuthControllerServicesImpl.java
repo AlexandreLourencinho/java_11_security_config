@@ -179,9 +179,11 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(responseBody);
         } else {
             String newToken = jwtUtils.generateJwtToken(userDto.getUsername());
+            String newRefreshToken = jwtUtils.generateJwtRefreshToken(userDto.getUsername());
             UserInfoResponse returnedUser = AppUserMapper.INSTANCE.appUserToUserInfoResponse(updatedUser);
             HttpHeaders headers = new HttpHeaders();
-            headers.set(HEADER_TOKEN, newToken);
+            headers.set(HEADER_TOKEN, TOKEN_START + newToken);
+            headers.set(REFRESH_TOKEN, TOKEN_START_REFRESH + newRefreshToken);
             responseBody.put("user", returnedUser);
             log.info("user updated successfully");
 

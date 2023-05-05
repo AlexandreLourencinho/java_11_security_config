@@ -57,7 +57,8 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    @GetMapping("")
+    @GetMapping("/me")
+    @PreAuthorize("hasAuthority('User')")
     public ResponseEntity<UserInfoResponse> getUser(HttpServletRequest request) {
         return authControllerServices.getUser(request);
     }
@@ -70,7 +71,7 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    @PutMapping("/update/{userId}")
+    @PutMapping("/update/{userId}")// TODO changer le fonctionnement? via username? (old)
     @PreAuthorize("hasAuthority('Admin')")
     public ResponseEntity<Map<String, Object>> updateSelectedUser(@PathVariable String userId, @RequestBody SignupRequest updatedUser) {
         return authControllerServices.updateSelectedUser(Long.parseLong(userId), updatedUser);
@@ -80,7 +81,7 @@ public class AuthControllerImpl implements AuthController {
     @Override
     @DeleteMapping("/delete")
     @PreAuthorize("hasAuthority('User')")
-    public ResponseEntity<MessageResponse> deleteUser(HttpServletRequest request, DeleteRequestConfirmation deleteRequest) {
+    public ResponseEntity<MessageResponse> deleteUser(HttpServletRequest request, @Valid DeleteRequestConfirmation deleteRequest) {
         return authControllerServices.deleteUser(request, deleteRequest);
     }
 
