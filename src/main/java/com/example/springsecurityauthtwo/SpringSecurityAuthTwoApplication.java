@@ -32,8 +32,8 @@ public class SpringSecurityAuthTwoApplication {
     @Bean
     public CommandLineRunner demo(AppRoleRepository roleRepository, AppUserRepository userRepository, PasswordEncoder passwordEncoder) {
         return (args -> {
-            log.warn("bean launched");
-            var test = roleRepository.findAll();
+            log.warn("bean CommandLineRunner launched");
+            Iterable<AppRole> test = roleRepository.findAll();
             if(!test.iterator().hasNext()) {
                 String[] eRolesAr = {ERole.ROLE_ADMIN.getValue(), ERole.ROLE_USER.getValue(), ERole.ROLE_MODERATOR.getValue(), ERole.ROLE_ACTUATOR.getValue()};
                 List<String> listRoles = new ArrayList<>(List.of(eRolesAr));
@@ -42,11 +42,13 @@ public class SpringSecurityAuthTwoApplication {
                     roleRepository.save(rol);
                 });
             }
-            var testu = userRepository.findAll();
-            if(!testu.iterator().hasNext()) {
+            Iterable<AppUser> testUser = userRepository.findAll();
+            if(!testUser.iterator().hasNext()) {
                 Set<AppRole> setRoles = new HashSet<>();
                 AppRole role = roleRepository.findByName(ERole.ROLE_ADMIN.getValue()).orElse(null);
+                AppRole secondRole = roleRepository.findByName(ERole.ROLE_USER.getValue()).orElse(null);
                 setRoles.add(role);
+                setRoles.add(secondRole);
                 AppUser admin = new AppUser().setUsername("admin")
                         .setEmail("admin@admin")
                         .setPassword(passwordEncoder.encode("1234"))
