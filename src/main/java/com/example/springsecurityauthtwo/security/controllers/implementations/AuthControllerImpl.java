@@ -57,7 +57,7 @@ public class AuthControllerImpl implements AuthController {
     }
 
     @Override
-    @GetMapping("/me")
+    @GetMapping("")
     @PreAuthorize("hasAuthority('User')")
     public ResponseEntity<UserInfoResponse> getUser(HttpServletRequest request) {
         return authControllerServices.getUser(request);
