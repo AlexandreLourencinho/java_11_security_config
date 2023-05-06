@@ -8,12 +8,26 @@
 	"item": [
 		{
 			"name": "signup",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"user should sign up\", function() {\r",
+							"    pm.response.to.have.status(200);\r",
+							"    pm.response.to.have.jsonBody(\"Success\")\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "POST",
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"aaa\",\r\n    \"email\":\"aaa@aaa\",\r\n    \"password\": \"1234\"\r\n}",
+					"raw": "{\r\n    \"username\": \"aaa\",\r\n    \"email\":\"aaa@aaa\",\r\n    \"password\": \"1234\",\r\n    \"roles\": []\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -51,8 +65,14 @@
 					"listen": "test",
 					"script": {
 						"exec": [
-							"\r",
-							"pm.environment.set(\"jwtToken\", postman.getResponseHeader(\"Authorization\"));"
+							"pm.test(\"user should sign in\", function(){\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.have.jsonBody(\"user\");\r",
+							"    pm.response.to.have.header(\"Authorization\");\r",
+							"    pm.response.to.have.header(\"Refresh\");\r",
+							"});\r",
+							"pm.environment.set(\"jwtToken\", postman.getResponseHeader(\"Authorization\"));\r",
+							"pm.environment.set(\"refreshToken\", postman.getResponseHeader(\"Refresh\"));"
 						],
 						"type": "text/javascript"
 					}
@@ -94,6 +114,19 @@
 		},
 		{
 			"name": "test",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"test url should be ok\", function() {\r",
+							"    pm.response.to.be.ok;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"auth": {
 					"type": "jwt",
@@ -144,9 +177,8 @@
 					},
 					{
 						"key": "Refresh",
-						"value": "Refresh eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhYWEiLCJleHAiOjE2NzQyNDU3MzcsImlhdCI6MTY3NDI0NTczN30.SFASOtgdbK2ZMjJTw35oVbmuRN9Q72tX8S2Fzd3Xaban7ILnefDMmiJu9900z5CET-xRjhky6FMSo2z4iRb1xg",
-						"type": "text",
-						"disabled": true
+						"value": "{{refreshToken}}",
+						"type": "text"
 					},
 					{
 						"key": "Accept",
@@ -163,18 +195,6 @@
 					"path": [
 						"user",
 						"test"
-					],
-					"query": [
-						{
-							"key": "Authorization",
-							"value": "{{jwtToken}}",
-							"disabled": true
-						},
-						{
-							"key": "Refresh",
-							"value": "Refresh eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJhYWEiLCJleHAiOjE2Nzg4OTE4NjAsImlhdCI6MTY3ODgwNTQ2MH0.x_WouGjjE-HCX0yTAoC7RiWWqqIfUhWD3KHv_QvN_fYmm1sdg6avVvbOVyTSQQz-avzQdpM9tlf7S79BB8tXfQ",
-							"disabled": true
-						}
 					]
 				},
 				"description": "test controller"
@@ -182,7 +202,69 @@
 			"response": []
 		},
 		{
+			"name": "refreshToken",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"should get the refresh token\", function() {\r",
+							"    pm.response.to.have.header(\"Authorization\");\r",
+							"});\r",
+							"pm.environment.set(\"jwtToken\", postman.getResponseHeader(\"Authorization\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{jwtToken}}",
+						"type": "text"
+					},
+					{
+						"key": "Refresh",
+						"value": "{{refreshToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/user/public/refreshToken",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"public",
+						"refreshToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
 			"name": "update user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"should update the user and the tokens\", function() {\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.have.header(\"Authorization\");\r",
+							"    pm.response.to.have.header(\"Refresh\");\r",
+							"    pm.response.to.have.jsonBody(\"user\");\r",
+							"});\r",
+							"pm.environment.set(\"jwtToken\", postman.getResponseHeader(\"Authorization\"));\r",
+							"pm.environment.set(\"refreshToken\", postman.getResponseHeader(\"Refresh\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
 			"request": {
 				"method": "PUT",
 				"header": [
@@ -194,7 +276,7 @@
 				],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"username\": \"bbb\",\r\n    \"email\":\"bbb@bbb\",\r\n    \"password\": \"3456\"\r\n}",
+					"raw": "{\r\n    \"username\": \"bbb\",\r\n    \"email\":\"bbb@bbb\",\r\n    \"password\": \"3456\",\r\n    \"roles\": [\"User\", \"Moderator\", \"bb\"]\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -209,6 +291,404 @@
 					"path": [
 						"user",
 						"update"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user infos",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"should give user infos\", function() {\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.have.jsonBody(\"username\");\r",
+							"    pm.response.to.have.jsonBody(\"roles\");\r",
+							"    pm.response.to.have.jsonBody(\"email\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{jwtToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/user",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "signing admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"admin should sign in\", function(){\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.have.jsonBody(\"user\");\r",
+							"    pm.response.to.have.header(\"Authorization\");\r",
+							"    pm.response.to.have.header(\"Refresh\");\r",
+							"});\r",
+							"pm.environment.set(\"jwtToken\", postman.getResponseHeader(\"Authorization\"));\r",
+							"pm.environment.set(\"refreshToken\", postman.getResponseHeader(\"Refresh\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"admin\",\r\n    \"password\": \"1234\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/user/public/signing",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"public",
+						"signing"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user infos admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"should give admin user infos\", function() {\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.have.jsonBody(\"username\");\r",
+							"    pm.response.to.have.jsonBody(\"roles\");\r",
+							"    pm.response.to.have.jsonBody(\"email\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{jwtToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/user",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "test for admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"test url should be ok for admin\", function() {\r",
+							"    pm.response.to.be.ok;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "jwt",
+					"jwt": [
+						{
+							"key": "algorithm",
+							"value": "HS256",
+							"type": "string"
+						},
+						{
+							"key": "isSecretBase64Encoded",
+							"value": false,
+							"type": "boolean"
+						},
+						{
+							"key": "payload",
+							"value": "{}",
+							"type": "string"
+						},
+						{
+							"key": "addTokenTo",
+							"value": "header",
+							"type": "string"
+						},
+						{
+							"key": "headerPrefix",
+							"value": "Bearer",
+							"type": "string"
+						},
+						{
+							"key": "queryParamKey",
+							"value": "token",
+							"type": "string"
+						},
+						{
+							"key": "header",
+							"value": "{}",
+							"type": "string"
+						}
+					]
+				},
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{jwtToken}}",
+						"type": "text"
+					},
+					{
+						"key": "Refresh",
+						"value": "{{refreshToken}}",
+						"type": "text"
+					},
+					{
+						"key": "Accept",
+						"value": "application/xml",
+						"type": "text",
+						"disabled": true
+					}
+				],
+				"url": {
+					"raw": "{{url}}/user/test",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"test"
+					]
+				},
+				"description": "test controller"
+			},
+			"response": []
+		},
+		{
+			"name": "refreshToken for admin",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"should get the refresh token for admin\", function() {\r",
+							"    pm.response.to.have.header(\"Authorization\");\r",
+							"});\r",
+							"pm.environment.set(\"jwtToken\", postman.getResponseHeader(\"Authorization\"));"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{jwtToken}}",
+						"type": "text"
+					},
+					{
+						"key": "Refresh",
+						"value": "{{refreshToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/user/public/refreshToken",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"public",
+						"refreshToken"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "get user list",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"should retrieve the users list\", function() {\r",
+							"    pm.response.to.be.ok;\r",
+							"    const responseJson = pm.response.json();\r",
+							"    pm.expect(responseJson[0].username).to.eql(\"admin\");\r",
+							"    pm.expect(responseJson[0].email).to.eql(\"admin@admin\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{jwtToken}}",
+						"type": "text"
+					},
+					{
+						"key": "Refresh",
+						"value": "{{refreshToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/user/list",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"list"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "update selected user (admin)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"should update the user and the tokens\", function() {\r",
+							"    pm.response.to.be.ok;\r",
+							"    pm.response.to.have.jsonBody(\"Success\");\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{jwtToken}}",
+						"type": "text"
+					},
+					{
+						"key": "Refresh",
+						"value": "{{refreshToken}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"username\": \"ccc\",\r\n    \"email\":\"ccc@ccc\",\r\n    \"password\": \"7890\",\r\n    \"roles\": [\"User\", \"Moderator\", \"cc\"]\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/user/update/2",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"update",
+						"2"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "delete selected user",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"should have delete the user\", function() {\r",
+							"    pm.response.to.be.ok;\r",
+							"})"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{jwtToken}}",
+						"type": "text"
+					},
+					{
+						"key": "Refresh",
+						"value": "{{refreshToken}}",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "{{url}}/user/delete/2",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"user",
+						"delete",
+						"2"
 					]
 				}
 			},
