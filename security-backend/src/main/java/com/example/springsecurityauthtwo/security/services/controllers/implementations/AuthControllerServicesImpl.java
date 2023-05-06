@@ -123,7 +123,7 @@ public class AuthControllerServicesImpl implements AuthControllerServices {
 
         String newAccessToken = jwtUtils.generateJwtToken(username);
         HttpHeaders headers = new HttpHeaders();
-        headers.set(HEADER_TOKEN, newAccessToken);
+        headers.set(HEADER_TOKEN, TOKEN_START + newAccessToken);
         return ResponseEntity.status(HttpStatus.OK).headers(headers).contentType(MediaType.APPLICATION_JSON).body(responseBody);
     }
 
