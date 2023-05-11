@@ -10,7 +10,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <artifactId>security-backend</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>${parent.version}</version>
     <name>security-backend</name>
     <description>backend part of the security reusable module i've been developing</description>
     <properties>
