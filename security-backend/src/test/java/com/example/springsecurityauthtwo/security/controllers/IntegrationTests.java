@@ -42,7 +42,7 @@ import static org.junit.jupiter.api.Assertions.*;
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @TestMethodOrder(MethodOrderer.OrderAnnotation.class)
-class AuthControllerImplTest {
+class IntegrationTests {
 
     @Autowired
     private MockMvc mockMvc;
