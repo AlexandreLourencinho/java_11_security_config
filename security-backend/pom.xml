@@ -8,7 +8,7 @@
         <version>1.0.1-SNAPSHOT</version>
     </parent>
     <modelVersion>4.0.0</modelVersion>
-
+<!--TODO hikari pooling ? -->
     <artifactId>security-backend</artifactId>
     <version>${parent.version}</version>
     <name>security-backend</name>
