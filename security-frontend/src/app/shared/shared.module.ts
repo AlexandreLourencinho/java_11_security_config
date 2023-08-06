@@ -8,7 +8,7 @@ import {TranslateModule} from "@ngx-translate/core";
   declarations: [],
   imports: [
     CommonModule,
-    // TranslateModule.forChild()
+    TranslateModule
   ],
   exports: [CommonModule, TranslateModule]
 })
