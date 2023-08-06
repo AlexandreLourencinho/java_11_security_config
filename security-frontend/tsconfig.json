@@ -23,11 +23,12 @@
       "dom"
     ],
     "paths": {
-      "@app/*": [
-        "src/app"
-      ]
-    },
-    "useDefineForClassFields": false
+      "@app/*": ["src/app/*"],
+      "@components/*": ["src/app/components/*"],
+      "@assets/*": ["src/assets/*"],
+      "@services/*": ["src/app/services/*"],
+      "@env/*": ["src/environments/*"]
+    }
   },
   "angularCompilerOptions": {
     "enableI18nLegacyMessageIdFormat": false,

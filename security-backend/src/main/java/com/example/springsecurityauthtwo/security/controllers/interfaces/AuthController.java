@@ -21,7 +21,7 @@ public interface AuthController {
     /**
      * Read - Path allowing user to connect
      *
-     * @param loginRequest the login request that contains username and password
+     * @param loginRequest the {@link LoginRequest} that contains username and password
      * @return users infos with access and refresh token
      */
     @PostMapping("/public/signup")

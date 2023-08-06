@@ -1,0 +1,13 @@
+{
+  "login": {
+    "logOptionSelect": "Veuillez sélectionner une des options ci-dessous :",
+    "signInClick": "Se connecter",
+    "signUpClick": "S'inscrire"
+  },
+  "formLogin": {
+    "sectionTile": "Connexion"
+  },
+  "formSignup": {
+    "sectionTitle": "inscription"
+  }
+}

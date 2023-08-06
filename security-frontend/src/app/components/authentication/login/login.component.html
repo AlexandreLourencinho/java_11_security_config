@@ -1,0 +1,15 @@
+<ng-container *ngIf="!authenticationType">
+  <div>{{"login.logOptionSelect" | translate}}</div>
+</ng-container>
+<div>
+  <button (click)="goToSignIn()">{{"login.signInClick" | translate}}</button>
+  <button (click)="goToSignUp()"> {{"login.signUpClick" | translate}}</button>
+</div>
+
+<ng-container *ngIf="authenticationType === 'signin'">
+  <app-form-login></app-form-login>
+</ng-container>
+
+<ng-container *ngIf="authenticationType === 'signup'">
+  <app-form-signup></app-form-signup>
+</ng-container>

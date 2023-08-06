@@ -2,8 +2,17 @@
 // `ng build` replaces `environment.ts` with `environment.prod.ts`.
 // The list of file replacements can be found in `angular.json`.
 
+const API_URL: string = "http://localhost:8080";
+const AUTHENTICATION_API_URL: string = API_URL + "/user"
+
 export const environment = {
-  production: false
+  production: false,
+  authentication: {
+    login: {
+      signing: AUTHENTICATION_API_URL + "/public/signing",
+      signup: AUTHENTICATION_API_URL + "/public/signup"
+    }
+  }
 };
 
 /*
