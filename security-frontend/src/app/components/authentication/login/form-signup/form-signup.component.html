@@ -1,3 +1,64 @@
-<div>
-  <h1>{{"login.formSignup.sectionTitle" | translate}}</h1>
+<div class="container">
+
+  <!--  card-->
+  <mat-card class="half-width">
+
+    <!--    card header -->
+    <mat-card-header class="classic-label-input">
+      <h1>{{ "login.formSignup.sectionTitle" | translate}}</h1>
+    </mat-card-header>
+    <mat-card-content>
+
+      <!-- username input  -->
+      <div class="classic-label-input">
+        <label for="{{'login.formLogin.username' | translate}}">
+          {{'login.formLogin.username' | translate}}
+        </label>
+        <input type="text"
+               placeholder="{{'login.formLogin.usernamePlaceholder' | translate}}"
+               id="{{'login.formLogin.username' | translate}}"
+               [(ngModel)]="username">
+      </div>
+
+      <!--  password input-->
+      <div class="classic-label-input">
+        <label for="{{'login.formLogin.password' | translate }}">
+          {{'login.formLogin.password' | translate }}
+        </label>
+        <input type="password"
+               placeholder="{{'login.formLogin.passwordPlaceholder' | translate}}"
+               id="{{'login.formLogin.password' | translate }}"
+               [(ngModel)]="password">
+      </div>
+
+      <!--  confirm password input-->
+      <div class="classic-label-input">
+        <label for="{{'login.formSignup.confirmPassword' | translate }}">
+          {{'login.formSignup.confirmPassword' | translate }}
+        </label>
+        <input type="password"
+               placeholder="{{'login.formLogin.passwordPlaceholder' | translate}}"
+               id="{{'login.formSignup.confirmPassword' | translate }}"
+               [(ngModel)]="confirmPassword">
+      </div>
+
+      <!-- mail input  -->
+      <div class="classic-label-input">
+        <label for="{{'login.formSignup.email' | translate}}">
+          {{'login.formSignup.email' | translate}}
+        </label>
+        <input type="text"
+               placeholder="{{'login.formSignup.emailPlaceholder' | translate}}"
+               id="{{'login.formSignup.emailPlaceholder' | translate}}"
+               [(ngModel)]="email">
+      </div>
+
+      <!--      signup button -->
+      <button mat-button
+              color="primary"
+              (click)="signup()">
+        {{'login.formSignup.sectionTitle' | translate}}
+      </button>
+    </mat-card-content>
+  </mat-card>
 </div>
