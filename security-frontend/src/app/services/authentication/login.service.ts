@@ -1,6 +1,4 @@
-import { Injectable } from '@angular/core';
-import {HttpClient} from "@angular/common/http";
-import {environment} from "@env/environment.prod";
+import {Injectable} from '@angular/core';
 import LoginRequestModel from "@app/models/authentication/login-request.model";
 
 @Injectable({
@@ -8,9 +6,12 @@ import LoginRequestModel from "@app/models/authentication/login-request.model";
 })
 export class LoginService {
 
-  constructor() { }
+  constructor() {
+  }
 
-  public logInUser(loginRequest: LoginRequestModel): void { // TODO model login request
+  public logInUser(loginRequest: LoginRequestModel): void {
     // this.http.post(environment.authentication.login.signing, loginRequest);
+    console.info(`sending request to the back with loginRequest for user: ${loginRequest.getUsername()}`);
+    // TODO REQUEST TO GET THE JWT TOKEN + storing the token (?? localStorage ? check for security level)
   }
 }
