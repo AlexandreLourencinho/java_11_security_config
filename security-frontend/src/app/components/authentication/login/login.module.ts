@@ -6,7 +6,10 @@ import {FormSignupComponent} from '@components/authentication/login/form-signup/
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
 import {HttpClient} from "@angular/common/http";
 import {SharedModule} from "@app/shared/shared.module";
-import { LogoutComponent } from './logout/logout.component';
+import {LogoutComponent} from './logout/logout.component';
+import {MatButtonModule} from "@angular/material/button";
+import {MatCardModule} from "@angular/material/card";
+import {FormsModule} from "@angular/forms";
 
 export function createTranslateLoader(http: HttpClient) {
   console.log('FeatureModule createTranslateLoader');
@@ -17,7 +20,10 @@ export function createTranslateLoader(http: HttpClient) {
 @NgModule({
   imports: [
     SharedModule,
-    LoginRoutingModule
+    LoginRoutingModule,
+    MatButtonModule,
+    MatCardModule,
+    FormsModule
   ],
   declarations: [
     LoginComponent,

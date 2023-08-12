@@ -2,8 +2,14 @@
   <div>{{"login.logOptionSelect" | translate}}</div>
 </ng-container>
 <div>
-  <button (click)="goToSignIn()">{{"login.signInClick" | translate}}</button>
-  <button (click)="goToSignUp()"> {{"login.signUpClick" | translate}}</button>
+  <button (click)="goToSignIn()"
+          [disabled]="authenticationType === 'signin'">
+    {{"login.signInClick" | translate}}
+  </button>
+  <button (click)="goToSignUp()"
+          [disabled]="authenticationType === 'signup'">
+    {{"login.signUpClick" | translate}}
+  </button>
 </div>
 
 <ng-container *ngIf="authenticationType === 'signin'">
