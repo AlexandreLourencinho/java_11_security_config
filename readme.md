@@ -1,6 +1,8 @@
 # WIP
 ![wip alert](https://julienmorales.com/assets/img/portfolio/portfoliodetails/wip/wip.png)
-Wip for a full prepared backend and frontend security application using jwt.
+
+> [!IMPORTANT]
+> Wip for a full prepared backend and frontend security application using jwt.
 
 ## re-usability
 
