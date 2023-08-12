@@ -6,10 +6,7 @@ import {BrowserAnimationsModule} from "@angular/platform-browser/animations";
 import {HttpClient, HttpClientModule} from "@angular/common/http";
 import {TranslateLoader, TranslateModule} from "@ngx-translate/core";
 import {TranslateHttpLoader} from "@ngx-translate/http-loader";
-import {MatToolbarModule} from "@angular/material/toolbar";
-import {MatButtonModule} from "@angular/material/button";
-import { HeaderComponent } from '@components/layout/header/header.component';
-import { FooterComponent } from '@components/layout/footer/footer.component';
+import {LayoutModule} from "@components/layout/layout.module";
 
 export function createTranslateLoaderAppModule(http: HttpClient) {
   return new TranslateHttpLoader(http, '../assets/i18n/', '.json');
@@ -18,10 +15,9 @@ export function createTranslateLoaderAppModule(http: HttpClient) {
 @NgModule({
   declarations: [
     AppComponent,
-    HeaderComponent,
-    FooterComponent
   ],
   imports: [
+    LayoutModule,
     BrowserModule,
     AppRoutingModule,
     BrowserModule,
@@ -34,9 +30,7 @@ export function createTranslateLoaderAppModule(http: HttpClient) {
         deps: [HttpClient]
       },
       isolate: true
-    }),
-    MatToolbarModule,
-    MatButtonModule
+    })
   ],
   providers: [],
   exports : [
