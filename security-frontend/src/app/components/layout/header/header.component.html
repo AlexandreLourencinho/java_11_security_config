@@ -1,9 +1,12 @@
-<p>
-  <mat-toolbar color="primary" >
-    <span>My Application</span>
-    <span class="spacer"></span>
-    <button (click)="translateFr()"> fr</button>
-    <button (click)="translateEn()"> en</button>
-    <button mat-button (click)="goToLogin()"> login</button>
-  </mat-toolbar>
-</p>
+<mat-toolbar color="primary">
+  <button mat-button (click)="goToHomePage()">{{"header.applicationName" | translate}}</button>
+  <span class="spacer"></span>
+  <select id="languageSelect" name="languageSelect" [(ngModel)]="language" (change)="changeEffect()" [value]="language">
+    <option *ngFor="let lang of getTranslateService().getLangs()"
+            value="{{lang}}"
+            selected="{{getTranslateService().currentLang === lang}}">
+      {{lang}}
+    </option>
+  </select>
+  <button mat-button (click)="goToLogin()"> {{"header.login" | translate }}</button>
+</mat-toolbar>
