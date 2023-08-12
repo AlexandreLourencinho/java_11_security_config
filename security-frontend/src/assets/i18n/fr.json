@@ -5,10 +5,21 @@
     "signInClick": "Se connecter",
     "signUpClick": "S'inscrire",
     "formLogin": {
-      "sectionTitle": "Connexion"
+      "sectionTitle": "Connexion",
+      "username": "Nom d'utilisateur :",
+      "usernamePlaceholder": "Tapez votre nom d'utilisateur ici.",
+      "password": "Mot de passe :",
+      "passwordPlaceholder": "Tapez votre mot de passe ici."
     },
     "formSignup": {
-      "sectionTitle": "inscription"
+      "sectionTitle": "Inscription",
+      "confirmPassword": "Confirmez le mot de passe :",
+      "email": "Email :",
+      "emailPlaceholder": "Tapez votre email ici."
     }
+  },
+  "header": {
+    "login": "Se connecter",
+    "applicationName": "trouverNom"
   }
 }

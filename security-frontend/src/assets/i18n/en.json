@@ -5,10 +5,21 @@
     "signInClick": "click here to sign in",
     "signUpClick": "click here to sign up",
     "formLogin": {
-      "sectionTitle": "Sign in"
+      "sectionTitle": "Sign in",
+      "username": "Username :",
+      "usernamePlaceholder" : "Write your username here",
+      "password" : "Password :",
+      "passwordPlaceholder": "Write your password here"
     },
     "formSignup": {
-      "sectionTitle": "Sign up"
+      "sectionTitle": "Sign up",
+      "confirmPassword": "Please confirm your password :",
+      "email": "Email :",
+      "emailPlaceholder": "Write your email here."
     }
+  },
+  "header": {
+    "login": "log in",
+    "applicationName": "findAName"
   }
 }
