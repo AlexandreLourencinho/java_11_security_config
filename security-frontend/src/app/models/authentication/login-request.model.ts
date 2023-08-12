@@ -1,3 +1,6 @@
+/**
+ * the model used for sign
+ */
 export default class LoginRequestModel {
 
   constructor(username?: string, password?: string) {
