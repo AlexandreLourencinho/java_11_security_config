@@ -1,3 +1,40 @@
-<div>
-  <h1>{{ "login.formLogin.sectionTitle" | translate}}</h1>
+<div class="container">
+
+  <!--  card-->
+  <mat-card class="half-width">
+
+    <!--    card header-->
+    <mat-card-header class="classic-label-input">
+      <h1>{{ "login.formLogin.sectionTitle" | translate}}</h1>
+    </mat-card-header>
+    <mat-card-content>
+
+      <!-- username input  -->
+      <div class="classic-label-input">
+        <label for="{{'login.formLogin.username' | translate}}">
+          {{'login.formLogin.username' | translate}}
+        </label>
+        <input type="text"
+               placeholder="{{'login.formLogin.usernamePlaceholder' | translate}}"
+               id="{{'login.formLogin.username' | translate}}"
+               [(ngModel)]="username">
+      </div>
+
+      <!--  password input-->
+      <div class="classic-label-input">
+        <label for="{{'login.formLogin.password' | translate }}">
+          {{'login.formLogin.password' | translate }}
+        </label>
+        <input type="password"
+               placeholder="{{'login.formLogin.passwordPlaceholder' | translate}}"
+               id="{{'login.formLogin.password' | translate }}"
+               [(ngModel)]="password">
+      </div>
+      <button mat-button
+              color="primary"
+              (click)="signIn()">
+        {{'login.formLogin.sectionTitle' | translate}}
+      </button>
+    </mat-card-content>
+  </mat-card>
 </div>

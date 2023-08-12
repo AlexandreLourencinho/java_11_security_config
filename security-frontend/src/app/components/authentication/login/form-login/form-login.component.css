@@ -1,0 +1,28 @@
+div.classic-label-input {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  text-align: center;
+}
+
+mat-card.half-width {
+  width: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  align-self: center;
+  text-align: center;
+}
+
+div.container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+mat-card {
+  background-color: white;
+  color: black;
+}
