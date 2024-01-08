@@ -22,7 +22,7 @@ export class FormSignupComponent implements OnInit {
   /**
    *
    */
-  public signup() {
+  public signup(): void {
     if (
       this.username
       && this.password

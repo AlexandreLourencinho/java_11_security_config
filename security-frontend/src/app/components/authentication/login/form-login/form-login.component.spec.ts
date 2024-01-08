@@ -1,6 +1,11 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { FormLoginComponent } from './form-login.component';
+import {FormLoginComponent} from './form-login.component';
+import {AuthenticationService} from "@services/authentication/authentication.service";
+
+import {HttpClientTestingModule} from "@angular/common/http/testing";
+import {TranslateModule, TranslateStore} from "@ngx-translate/core";
+import {LoginModule} from "@components/authentication/login/login.module";
 
 describe('FormLoginComponent', () => {
   let component: FormLoginComponent;
@@ -8,9 +13,18 @@ describe('FormLoginComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FormLoginComponent ]
+      declarations: [FormLoginComponent],
+      providers: [
+        AuthenticationService,
+        TranslateStore
+      ],
+      imports: [
+        HttpClientTestingModule,
+        LoginModule,
+        TranslateModule.forChild(),
+      ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(FormLoginComponent);
     component = fixture.componentInstance;

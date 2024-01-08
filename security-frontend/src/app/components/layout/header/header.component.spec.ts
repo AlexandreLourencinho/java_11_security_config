@@ -1,6 +1,8 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
 
-import { HeaderComponent } from './header.component';
+import {HeaderComponent} from './header.component';
+import {TranslateModule, TranslateStore} from "@ngx-translate/core";
+import {LayoutModule} from "@components/layout/layout.module";
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
@@ -8,9 +10,14 @@ describe('HeaderComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ HeaderComponent ]
+      declarations: [HeaderComponent],
+      providers: [TranslateStore],
+      imports: [
+        TranslateModule.forChild(),
+        LayoutModule
+      ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;

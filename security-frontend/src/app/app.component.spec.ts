@@ -1,5 +1,8 @@
-import { TestBed } from '@angular/core/testing';
-import { AppComponent } from './app.component';
+import {TestBed} from '@angular/core/testing';
+import {AppComponent} from './app.component';
+import {TranslateModule, TranslateService} from "@ngx-translate/core";
+import {LayoutModule} from "@components/layout/layout.module";
+import {RouterModule, RouterOutlet} from "@angular/router";
 
 describe('AppComponent', () => {
   beforeEach(async () => {
@@ -7,6 +10,14 @@ describe('AppComponent', () => {
       declarations: [
         AppComponent
       ],
+      providers: [
+        TranslateService, RouterOutlet
+      ],
+      imports: [
+        TranslateModule.forRoot(),
+        LayoutModule,
+        RouterModule
+      ]
     }).compileComponents();
   });
 
@@ -20,12 +31,5 @@ describe('AppComponent', () => {
     const fixture = TestBed.createComponent(AppComponent);
     const app = fixture.componentInstance;
     expect(app.title).toEqual('security-frontend');
-  });
-
-  it('should render title', () => {
-    const fixture = TestBed.createComponent(AppComponent);
-    fixture.detectChanges();
-    const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.querySelector('.content span')?.textContent).toContain('security-frontend app is running!');
   });
 });

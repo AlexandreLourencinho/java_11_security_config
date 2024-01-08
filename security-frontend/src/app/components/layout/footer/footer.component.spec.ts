@@ -1,6 +1,6 @@
-import { ComponentFixture, TestBed } from '@angular/core/testing';
-
-import { FooterComponent } from './footer.component';
+import {ComponentFixture, TestBed} from '@angular/core/testing';
+import {FooterComponent} from '@components/layout/footer/footer.component';
+import {LayoutModule} from "@components/layout/layout.module";
 
 describe('FooterComponent', () => {
   let component: FooterComponent;
@@ -8,9 +8,12 @@ describe('FooterComponent', () => {
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      declarations: [ FooterComponent ]
+      declarations: [FooterComponent],
+      imports: [
+        LayoutModule
+      ]
     })
-    .compileComponents();
+      .compileComponents();
 
     fixture = TestBed.createComponent(FooterComponent);
     component = fixture.componentInstance;
@@ -20,4 +23,5 @@ describe('FooterComponent', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
 });
