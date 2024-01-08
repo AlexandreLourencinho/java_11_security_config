@@ -25,7 +25,7 @@ export class AppComponent {
   }
 
   goToLogin() {
-    this.router.navigate(["/login"]);
+    void this.router.navigate(["/login"]);
   }
 
   translateEn() {
