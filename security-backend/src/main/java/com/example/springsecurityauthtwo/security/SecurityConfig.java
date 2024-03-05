@@ -14,6 +14,8 @@ import java.util.Arrays;
 
 import org.springframework.context.annotation.Bean;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -118,22 +120,21 @@ public class SecurityConfig {
         if (Boolean.TRUE.equals(isProfileDevOrTest)) {
             log.info("authorized URL : {}", Arrays.toString(matchingUrlPermitAll));
         }
-
-        http.cors().and().csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(unauthorizedHandler).and()
-                .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+        http.cors(AbstractHttpConfigurer::disable);
+        http.csrf(AbstractHttpConfigurer::disable);
+        http.exceptionHandling(exception -> exception.authenticationEntryPoint(unauthorizedHandler));
+        http.sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
         if (Boolean.TRUE.equals(isProfileDevOrTest)) {
             log.info(DEV_FILTER_CHAIN_LOG);
-            http.authorizeRequests().antMatchers(matchingUrlPermitAll).permitAll()
-                    .anyRequest().authenticated();
+            http.authorizeHttpRequests(request -> request.requestMatchers(matchingUrlPermitAll).permitAll());
+            http.authorizeHttpRequests(request -> request.anyRequest().permitAll());
         } else {
             log.info(PROD_FILTER_CHAIN_LOG);
-            http.authorizeRequests()
-                    .antMatchers("/actuator/**").hasRole("ACTUATOR")
-                    .antMatchers(matchingUrlPermitAll).permitAll()
-                    .anyRequest().authenticated();
+            http.authorizeHttpRequests(request -> request.requestMatchers("/actuator/**").hasRole("ACTUATOR"));
+            http.authorizeHttpRequests(request -> request.requestMatchers(matchingUrlPermitAll).permitAll());
+            http.authorizeHttpRequests(request -> request.anyRequest().authenticated());
         }
-        http.headers().frameOptions().sameOrigin();
+        http.headers(header -> header.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin));
         http.authenticationProvider(authProvider());
         http.addFilterBefore(authTokenFilter(), UsernamePasswordAuthenticationFilter.class);
 
