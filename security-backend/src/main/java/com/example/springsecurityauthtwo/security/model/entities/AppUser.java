@@ -3,8 +3,8 @@ package com.example.springsecurityauthtwo.security.model.entities;
 import java.util.Set;
 import java.util.HashSet;
 import java.util.Objects;
-import javax.persistence.*;
 
+import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.Hibernate;
 import lombok.experimental.Accessors;

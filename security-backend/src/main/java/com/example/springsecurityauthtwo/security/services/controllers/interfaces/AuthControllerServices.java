@@ -3,7 +3,7 @@ package com.example.springsecurityauthtwo.security.services.controllers.interfac
 import com.example.springsecurityauthtwo.security.model.dtos.*;
 import org.springframework.http.ResponseEntity;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Map;
 

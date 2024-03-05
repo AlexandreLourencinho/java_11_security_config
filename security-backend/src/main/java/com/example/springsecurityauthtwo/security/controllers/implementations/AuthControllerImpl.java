@@ -5,8 +5,8 @@ import com.example.springsecurityauthtwo.security.model.dtos.*;
 import com.example.springsecurityauthtwo.security.services.controllers.interfaces.AuthControllerServices;
 
 import java.util.*;
-import javax.validation.Valid;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

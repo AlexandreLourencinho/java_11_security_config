@@ -16,13 +16,16 @@ import com.example.springsecurityauthtwo.security.services.users.interfaces.User
 import java.util.Arrays;
 import java.io.IOException;
 import java.util.Objects;
-import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+
+import io.jsonwebtoken.security.SecurityException;
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -64,7 +67,8 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
      * @throws IOException      base exceptions which occur while reading or accessing files, directories and streams
      */
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,
+                                    @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String requestToken = request.getHeader(HEADER_TOKEN);
         final boolean isDevOrTestEnv = isDevOrTestEnv(profile);
 
@@ -135,7 +139,7 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
             throw new TokenException(MALFORMED_JWT_MESSAGE + e.getMessage());
 
 
-        } catch (SignatureException e) {
+        } catch (SecurityException e) {
             log.error(ERROR_MANAGEMENT, SIGNATURE_MESSAGE, e.getMessage());
             request.setAttribute(SIGNATURE, SIGNATURE_MESSAGE + e.getMessage());
             throw new TokenException(SIGNATURE_MESSAGE + e.getMessage());

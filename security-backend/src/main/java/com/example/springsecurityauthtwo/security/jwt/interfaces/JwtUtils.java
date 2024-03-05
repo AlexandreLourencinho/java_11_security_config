@@ -3,7 +3,7 @@ package com.example.springsecurityauthtwo.security.jwt.interfaces;
 import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
 import io.jsonwebtoken.Claims;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 import java.util.Date;
 import java.util.Map;
 import java.util.function.Function;

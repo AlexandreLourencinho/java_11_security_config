@@ -1,6 +1,6 @@
 package com.example.springsecurityauthtwo.security.jwt.interfaces;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 public interface AuthTokenFilter {
 

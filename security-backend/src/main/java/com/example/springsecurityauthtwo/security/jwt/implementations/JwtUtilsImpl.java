@@ -9,13 +9,17 @@ import java.util.*;
 import java.time.ZoneId;
 import java.time.LocalDateTime;
 import java.util.function.Function;
-import javax.servlet.http.HttpServletRequest;
+
+import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
 
 import io.jsonwebtoken.*;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.crypto.SecretKey;
 
 
 /**
@@ -56,12 +60,14 @@ public class JwtUtilsImpl implements JwtUtils {
                         .atZone(ZoneId.systemDefault())
                         .toInstant());
 
+        SecretKey s = Keys.hmacShaKeyFor(Base64.getEncoder().encode(secret.getBytes()));
+
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(date)
                 .setExpiration(expDate)
-                .signWith(SignatureAlgorithm.HS512, secret)
+                .signWith(s)
                 .compact();
     }
 
@@ -75,12 +81,14 @@ public class JwtUtilsImpl implements JwtUtils {
                         .plusDays(1)
                         .atZone(ZoneId.systemDefault())
                         .toInstant());
+
+        SecretKey s = Keys.hmacShaKeyFor(Base64.getEncoder().encode(secret.getBytes()));
         return Jwts.builder()
                 .setClaims(claims)
                 .setSubject(username)
                 .setIssuedAt(date)
                 .setExpiration(refreshDate)
-                .signWith(SignatureAlgorithm.HS512, secret).compact();
+                .signWith(s).compact();
     }
 
     @Override
@@ -134,7 +142,8 @@ public class JwtUtilsImpl implements JwtUtils {
      * @return Claims object
      */
     private Claims getAllClaimsFromToken(String token) {
-        return Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        SecretKey s = Keys.hmacShaKeyFor(Base64.getEncoder().encode(secret.getBytes()));
+        return Jwts.parserBuilder().setSigningKey(s).build().parseClaimsJws(token).getBody();
     }
 
 }

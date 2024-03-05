@@ -10,6 +10,7 @@ import com.example.springsecurityauthtwo.security.services.users.interfaces.User
 import java.util.*;
 
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.HibernateException;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
@@ -68,7 +69,7 @@ class IntegrationTests {
 
     @Test
     @Order(1)
-    void testRegisterUser() throws Exception {
+    void testRegisterUser() throws Exception, HibernateException {
         SignupRequest request = new SignupRequest()
                 .setUsername(this.username)
                 .setEmail(this.email)

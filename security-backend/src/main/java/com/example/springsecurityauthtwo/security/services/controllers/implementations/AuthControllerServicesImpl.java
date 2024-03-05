@@ -15,7 +15,7 @@ import com.example.springsecurityauthtwo.security.services.users.implementations
 import com.example.springsecurityauthtwo.security.services.controllers.interfaces.AuthControllerServices;
 
 import java.util.*;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.springframework.http.MediaType;
 import org.springframework.http.HttpStatus;
