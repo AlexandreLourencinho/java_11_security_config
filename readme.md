@@ -25,13 +25,18 @@ after getting the work done on the backend - for what i've been able to test thr
 
 Currently 2.7.8. considering passing to spring boot 3.
 
+**UPDATE** march 2024 : the update has been done to spring boot 3.2.3
+
 ### Java version
 Java 11. considering passing to java 17.
+
+**UPDATE** march 2024 : the update to java 17 has been done.
 
 ## Frontend :
 
 ### angular version
-Currently angular 15 is used.
+Currently angular 15 is used.\
+Will check for angular 17 this year.
 
 Material theme and ngx translate implemented.
 
