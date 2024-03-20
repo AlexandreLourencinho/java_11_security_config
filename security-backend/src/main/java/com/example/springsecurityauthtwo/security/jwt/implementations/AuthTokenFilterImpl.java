@@ -36,8 +36,6 @@ import lombok.NoArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lombok.AllArgsConstructor;
 
-
-
 /**
  * @author Alexandre Lourencinho
  * @version 1.2
@@ -69,6 +67,7 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response,
                                     @NonNull FilterChain filterChain) throws ServletException, IOException {
+
         final String requestToken = request.getHeader(HEADER_TOKEN);
         final boolean isDevOrTestEnv = isDevOrTestEnv(profile);
 
@@ -84,11 +83,13 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
             // TODO verifier condition ici si pas bypass toute sécurité
             filterChain.doFilter(request, response);
             return;
+
         } else {
             log.warn("JWT token does not begin with Bearer String " + requestToken);
             request.setAttribute(NO_BEARER, NO_BEARER_MESSAGE);
             throw new TokenException(NO_BEARER_MESSAGE);
         }
+
         filterChain.doFilter(request, response);
     }
 
@@ -118,42 +119,46 @@ public class AuthTokenFilterImpl extends OncePerRequestFilter implements AuthTok
         } catch (ExpiredJwtException e) {
             log.error(ERROR_MANAGEMENT, EXPIRED_ERROR_MESSAGE, e.getMessage());
             request.setAttribute(EXPIRED, EXPIRED_ERROR_MESSAGE + e.getMessage());
-            throw new TokenException(EXPIRED_ERROR_MESSAGE + e.getMessage());
 
+            throw new TokenException(EXPIRED_ERROR_MESSAGE + e.getMessage());
 
         } catch (CompressionException e) {
             log.error(ERROR_MANAGEMENT, INCORRECT_TOKEN_FORMAT_MESSAGE, e.getMessage());
             request.setAttribute(INCORRECT_TOKEN_FORMAT, INCORRECT_TOKEN_FORMAT_MESSAGE + e.getMessage());
-            throw new TokenException(INCORRECT_TOKEN_FORMAT_MESSAGE + e.getMessage());
 
+            throw new TokenException(INCORRECT_TOKEN_FORMAT_MESSAGE + e.getMessage());
 
         } catch (ClaimJwtException e) {
             log.error(ERROR_MANAGEMENT, CLAIMS_INVALID_MESSAGE, e.getMessage());
             request.setAttribute(CLAIMS_INVALID, CLAIMS_INVALID_MESSAGE + e.getMessage());
-            throw new TokenException(CLAIMS_INVALID_MESSAGE + e.getMessage());
 
+            throw new TokenException(CLAIMS_INVALID_MESSAGE + e.getMessage());
 
         } catch (MalformedJwtException e) {
             log.error(ERROR_MANAGEMENT, MALFORMED_JWT_MESSAGE, e.getMessage());
             request.setAttribute(MALFORMED, MALFORMED_JWT_MESSAGE + e.getMessage());
-            throw new TokenException(MALFORMED_JWT_MESSAGE + e.getMessage());
 
+            throw new TokenException(MALFORMED_JWT_MESSAGE + e.getMessage());
 
         } catch (SecurityException e) {
             log.error(ERROR_MANAGEMENT, SIGNATURE_MESSAGE, e.getMessage());
             request.setAttribute(SIGNATURE, SIGNATURE_MESSAGE + e.getMessage());
+
             throw new TokenException(SIGNATURE_MESSAGE + e.getMessage());
 
         } catch (UnsupportedJwtException e) {
             log.error(ERROR_MANAGEMENT, UNSUPPORTED_MESSAGE, e.getMessage());
             request.setAttribute(UNSUPPORTED, UNSUPPORTED_MESSAGE + e.getMessage());
+
             throw new TokenException(UNSUPPORTED_MESSAGE + e.getMessage());
 
         } catch (Exception e) {
             log.error("catch exception e ");
             request.setAttribute(INTERNAL_SERVER_ERROR, INTERNAL_SERVER_ERROR_MESSAGE);
+
             throw new TokenException(INTERNAL_SERVER_ERROR_MESSAGE + e.getMessage());
         }
+
     }
 
     public Boolean manageAccessURL(String servletPath) {
