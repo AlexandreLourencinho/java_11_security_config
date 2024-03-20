@@ -13,6 +13,7 @@ import java.util.function.Function;
 import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -32,25 +33,32 @@ import javax.crypto.SecretKey;
 @Component
 public class JwtUtilsImpl implements JwtUtils {
 
-    @Value("${com.example.jwtSecret}")
-    private String secret;
-    @Value("${com.example.minuteExpiration}")
-    private String minuteExpiration;
+    private final String secret;
+    private final String minuteExpiration;
 
+    @Autowired
+    public JwtUtilsImpl( @Value("${com.example.jwtSecret}") String secret,
+                         @Value("${com.example.minuteExpiration}") String minuteExpiration) {
+        this.secret = secret;
+        this.minuteExpiration = minuteExpiration;
+    }
 
     @Override
     public Map<String, String> generateTokenAndRefresh(String username) {
+
         log.info("generating new Access Token and new Refresh Token...");
         String refreshToken = generateJwtRefreshToken(username);
         String token = generateJwtToken(username);
         Map<String, String> tokens = new HashMap<>();
         tokens.put("token", token);
         tokens.put("refreshToken", refreshToken);
+
         return tokens;
     }
 
     @Override
     public String generateJwtToken(String username) {
+
         log.info("generating access token...");
         Map<String, Object> claims = new HashMap<>();
         Date date = new Date(System.currentTimeMillis());
@@ -60,19 +68,18 @@ public class JwtUtilsImpl implements JwtUtils {
                         .atZone(ZoneId.systemDefault())
                         .toInstant());
 
-        SecretKey s = Keys.hmacShaKeyFor(Base64.getEncoder().encode(secret.getBytes()));
-
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(username)
-                .setIssuedAt(date)
-                .setExpiration(expDate)
-                .signWith(s)
+                .claims(claims)
+                .subject(username)
+                .issuedAt(date)
+                .expiration(expDate)
+                .signWith(getSecretKey())
                 .compact();
     }
 
     @Override
     public String generateJwtRefreshToken(String username) {
+
         log.info("generating refresh token...");
         Date date = new Date(System.currentTimeMillis());
         Map<String, Object> claims = new HashMap<>();
@@ -82,17 +89,17 @@ public class JwtUtilsImpl implements JwtUtils {
                         .atZone(ZoneId.systemDefault())
                         .toInstant());
 
-        SecretKey s = Keys.hmacShaKeyFor(Base64.getEncoder().encode(secret.getBytes()));
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(username)
-                .setIssuedAt(date)
-                .setExpiration(refreshDate)
-                .signWith(s).compact();
+                .claims(claims)
+                .subject(username)
+                .issuedAt(date)
+                .expiration(refreshDate)
+                .signWith(getSecretKey()).compact();
     }
 
     @Override
     public <T> T getClaimFromToken(String token, Function<Claims, T> claimsResolver) {
+
         final Claims claims = getAllClaimsFromToken(token);
         return claimsResolver.apply(claims);
     }
@@ -109,6 +116,7 @@ public class JwtUtilsImpl implements JwtUtils {
 
     @Override
     public Boolean validateToken(String token, UserDetailsCustom user) {
+
         log.info("checking if token is still valid...");
         final String username = getUsernameFromToken(token);
         return username.equals(user.getUsername()) && !isTokenExpired(token);
@@ -142,8 +150,17 @@ public class JwtUtilsImpl implements JwtUtils {
      * @return Claims object
      */
     private Claims getAllClaimsFromToken(String token) {
-        SecretKey s = Keys.hmacShaKeyFor(Base64.getEncoder().encode(secret.getBytes()));
-        return Jwts.parserBuilder().setSigningKey(s).build().parseClaimsJws(token).getBody();
+        return Jwts.parser().verifyWith(getSecretKey()).build().parseSignedClaims(token).getPayload();
+    }
+
+    /**
+     * gather the built-in secretKey from the private secret key string
+     *
+     * @return a {@link SecretKey} object built from the private secret key
+     */
+    private SecretKey getSecretKey() {
+        log.info("secret : {}", secret);
+        return Keys.hmacShaKeyFor(Base64.getEncoder().encode(secret.getBytes()));
     }
 
 }

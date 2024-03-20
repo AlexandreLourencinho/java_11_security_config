@@ -61,10 +61,12 @@ public class AuthEntryPoint implements AuthenticationEntryPoint {
                 body.put(MESSAGE, errMessage);
             }
         });
+
         if(Objects.isNull(body.get(ERROR))) {
             body.put(ERROR, ERROR);
             body.put(MESSAGE, UNSUPPORTED_MESSAGE);
         }
+
         body.put(PATH, request.getServletPath());
         mapper.writeValue(response.getOutputStream(), body);
 

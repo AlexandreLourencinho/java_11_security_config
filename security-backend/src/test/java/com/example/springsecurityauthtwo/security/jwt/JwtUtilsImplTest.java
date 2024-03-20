@@ -2,25 +2,27 @@ package com.example.springsecurityauthtwo.security.jwt;
 
 import java.util.Date;
 import java.util.ArrayList;
+import java.util.UUID;
 
 import com.example.springsecurityauthtwo.security.jwt.implementations.JwtUtilsImpl;
+import com.example.springsecurityauthtwo.security.jwt.interfaces.JwtUtils;
 import com.example.springsecurityauthtwo.security.services.users.interfaces.UserDetailsCustom;
 import com.example.springsecurityauthtwo.security.services.users.implementations.UserDetailsCustomImpl;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-
-@SpringBootTest
 class JwtUtilsImplTest {
 
-    @Autowired
-    private JwtUtilsImpl jwtUtils;
+    private JwtUtils jwtUtils;
 
     private static final String USERNAME = "testUser";
+
+    @BeforeEach
+    void setup() {
+        this.jwtUtils = new JwtUtilsImpl(UUID.randomUUID().toString(), "15");
+    }
 
     @Test
     void testGenerateJwtToken() {
